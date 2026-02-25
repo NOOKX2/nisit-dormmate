@@ -1,10 +1,10 @@
-import { Navbar } from "@/components/navbar/navbar";
+import { Navbar } from "@/components/navbar/Navbar";
 
 export default function MainLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* 🌟 เสียบ Navbar ไว้ตรงนี้ มันจะแสดงแค่ในกลุ่ม (main) */}
-      <Navbar />
+      < Navbar/>
       <main>{children}</main>
     </div>
   );
