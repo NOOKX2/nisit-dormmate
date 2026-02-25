@@ -1,0 +1,73 @@
+// 🌟 ข้อมูลผู้ใช้งาน (นิสิต)
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  password      String?
+  image         String?
+  faculty       String?   // คณะ (เช่น วิศวะ, เกษตร)
+  year          Int?      // ชั้นปี
+  
+  // ส่วนของ Lifestyle Quiz (สำหรับหารูมเมท)
+  cleanliness   Int?      // ระดับความสะอาด (1-5)
+  sleepHabit    String?   // เวลานอน (Early Bird / Night Owl)
+  smoking       Boolean?  // สูบบุหรี่ไหม
+  
+  // Relationships
+  reviews       Review[]
+  bookings      Booking[]
+  createdAt     DateTime  @default(now())
+}
+
+// 🏢 ข้อมูลหอพัก
+model Dorm {
+  id            String    @id @default(cuid())
+  name          String
+  description   String?
+  locationShort String    // เช่น "ซอยพหลโยธิน 45"
+  price         Int
+  imageUrl      String?
+  rating        Float     @default(0)
+  reviewCount   Int       @default(0)
+  
+  // คะแนนย่อย (Scores)
+  wifiScore     Float?
+  securityScore Float?
+  ownerScore    Float?
+  
+  // Relationships
+  reviews       Review[]
+  bookings      Booking[]
+}
+
+// 💬 ข้อมูลรีวิว
+model Review {
+  id            String    @id @default(cuid())
+  rating        Int
+  comment       String
+  helpfulCount  Int       @default(0)
+  createdAt     DateTime  @default(now())
+  
+  // Foreign Keys
+  userId        String
+  user          User      @relation(fields: [userId], references: [id])
+  dormId        String
+  dorm          Dorm      @relation(fields: [dormId], references: [id])
+}
+
+// 📅 ข้อมูลการจอง
+model Booking {
+  id            String    @id @default(cuid())
+  status        String    @default("PENDING") // PENDING, CONFIRMED, CANCELLED
+  checkInDate   DateTime?
+  
+  userId        String
+  user          User      @relation(fields: [userId], references: [id])
+  dormId        String
+  dorm          Dorm      @relation(fields: [dormId], references: [id])
+  createdAt     DateTime  @default(now())
+}
+
+datasource db {
+  provider  = "postgresql"
+}
