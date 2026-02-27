@@ -20,8 +20,13 @@ services:
     restart: always
     ports:
       - "3000:3000"
+    volumes:
+      - .:/app
+      - /app/node_modules
     environment:
       - DATABASE_URL=postgresql://nook:12345@db:5432/nisit_dormmate?schema=public
+      - NODE_ENV=development
+    command: sh -c "bun install && bunx prisma generate && bun dev"
     depends_on:
       - db
 

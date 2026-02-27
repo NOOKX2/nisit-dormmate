@@ -3,7 +3,13 @@ FROM oven/bun:1.1 AS builder
 WORKDIR /app
 
 # ติดตั้ง Node.js 20 (LTS) แทนการสั่งติดตั้งแบบธรรมดา
-RUN apt-get update && apt-get install -y curl
+RUN apt-get update && apt-get install -y \
+    curl \
+    python3 \
+    make \
+    g++ \
+    && rm -rf /var/lib/apt/lists/*
+    
 RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
 RUN apt-get install -y nodejs
 
