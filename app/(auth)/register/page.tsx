@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Mail, Lock, User } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
-import { registerAction } from './action';
+import { registerAction } from '../../action/register';
 import { FormError } from '@/components/ui/FormError';
 
 export default function RegisterPage() {

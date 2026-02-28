@@ -1,31 +1,38 @@
-// 🌟 ข้อมูลผู้ใช้งาน (นิสิต)
 generator client {
   provider = "prisma-client-js"
-  previewFeatures = ["driverAdapters"]
 }
 
 datasource db {
-  provider  = "postgresql"
+  provider = "postgresql"
 }
 
+enum Role {
+  USER
+  ADMIN
+  OWNER
+}
+
+// 🌟 ข้อมูลผู้ใช้งาน (นิสิต)
 model User {
-  id            String    @id @default(cuid())
-  name          String?
-  email         String    @unique
-  password      String?
-  image         String?
-  faculty       String?   // คณะ (เช่น วิศวะ, เกษตร)
-  year          Int?      // ชั้นปี
-  
+  id           String    @id @default(cuid())
+  name         String?
+  email        String    @unique
+  password     String?
+  image        String?
+  faculty      String?   // คณะ (เช่น วิศวะ, เกษตร)
+  year         Int?      // ชั้นปี
+  role         Role      @default(USER)
+
   // ส่วนของ Lifestyle Quiz (สำหรับหารูมเมท)
-  cleanliness   Int?      // ระดับความสะอาด (1-5)
-  sleepHabit    String?   // เวลานอน (Early Bird / Night Owl)
-  smoking       Boolean?  // สูบบุหรี่ไหม
+  cleanliness  Int?      // ระดับความสะอาด (1-5)
+  sleepHabit   String?   // เวลานอน (Early Bird / Night Owl)
+  smoking      Boolean?  // สูบบุหรี่ไหม
   
   // Relationships
-  reviews       Review[]
-  bookings      Booking[]
-  createdAt     DateTime  @default(now())
+  reviews      Review[]
+  bookings     Booking[]
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
 }
 
 // 🏢 ข้อมูลหอพัก
@@ -34,7 +41,7 @@ model Dorm {
   name          String
   description   String?
   locationShort String    // เช่น "ซอยพหลโยธิน 45"
-  price         Int
+  priceRange    String?   // เช่น "4,500 - 6,500"
   imageUrl      String?
   rating        Float     @default(0)
   reviewCount   Int       @default(0)
@@ -45,34 +52,56 @@ model Dorm {
   ownerScore    Float?
   
   // Relationships
+  rooms         Room[]    
   reviews       Review[]
-  bookings      Booking[]
+  bookings      Booking[] 
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+// 🛏️ ข้อมูลห้องพัก
+model Room {
+  id          String    @id @default(cuid())
+  name        String    // เช่น "ห้องแอร์ เตียงคู่"
+  price       Int
+  capacity    Int       @default(2) 
+  isAvailable Boolean   @default(true) 
+  
+  dormId      String
+  dorm        Dorm      @relation(fields: [dormId], references: [id], onDelete: Cascade)
+  bookings    Booking[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 }
 
 // 💬 ข้อมูลรีวิว
 model Review {
-  id            String    @id @default(cuid())
+  id            String   @id @default(cuid())
   rating        Int
   comment       String
-  helpfulCount  Int       @default(0)
-  createdAt     DateTime  @default(now())
+  helpfulCount  Int      @default(0)
   
-  // Foreign Keys
   userId        String
-  user          User      @relation(fields: [userId], references: [id])
+  user          User     @relation(fields: [userId], references: [id])
   dormId        String
-  dorm          Dorm      @relation(fields: [dormId], references: [id])
+  dorm          Dorm     @relation(fields: [dormId], references: [id])
+  
+  createdAt     DateTime @default(now())
 }
 
 // 📅 ข้อมูลการจอง
 model Booking {
-  id            String    @id @default(cuid())
-  status        String    @default("PENDING") // PENDING, CONFIRMED, CANCELLED
-  checkInDate   DateTime?
+  id           String    @id @default(cuid())
+  status       String    @default("PENDING") // PENDING, CONFIRMED, CANCELLED
+  checkInDate  DateTime?
   
-  userId        String
-  user          User      @relation(fields: [userId], references: [id])
-  dormId        String
-  dorm          Dorm      @relation(fields: [dormId], references: [id])
-  createdAt     DateTime  @default(now())
+  userId       String
+  user         User      @relation(fields: [userId], references: [id])
+  dormId       String
+  dorm         Dorm      @relation(fields: [dormId], references: [id])
+  roomId       String?   
+  room         Room?     @relation(fields: [roomId], references: [id])
+  
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
 }

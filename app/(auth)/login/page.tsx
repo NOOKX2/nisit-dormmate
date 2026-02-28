@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Mail, Lock } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
-import { loginAction } from './action';
+import { loginAction } from '../../action/login';
 import { FormError } from '@/components/ui/FormError'; // อย่าลืม Import Component Error ที่เราสร้างไว้ครับ
 
 export default function LoginPage() {

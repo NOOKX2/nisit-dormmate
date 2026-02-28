@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { Building2, User, LogOut } from 'lucide-react'; // เพิ่ม Icon สำหรับ User และ Logout
 import { getAuthUser } from '@/lib/auth';
-import { logoutAction } from '@/app/(auth)/logout/action';
+import { logoutAction } from '@/app/action/logout';
 import UserDropdown from '../ui/UseDropDown';
 
 export default async function Navbar() {

@@ -5,6 +5,7 @@ import { BackButton } from '@/components/ui/BackButton';
 import { Button } from '@/components/ui/button';
 import { Dorm } from '@/types/dorm';
 import { MapPin, Star, Wifi, Shield, Heart } from 'lucide-react';
+import Link from 'next/link';
 
 interface DormDetailProps {
   dorm: Dorm;
@@ -82,7 +83,9 @@ export default function DormDetailPage({ dorm }: DormDetailProps) {
         {/* Sticky Bottom Button */}
         <div className="fixed bottom-0 left-0 right-0 p-4 bg-white border-t border-gray-100 flex justify-center">
           <div className="max-w-3xl w-full">
-             <Button className="py-3 w-full text-lg rounded-xl">ติดต่อเจ้าของหอ</Button>
+            <Link href={`/dorm/${dorm?.id}/booking`}>
+             <Button className="py-3 w-full text-lg rounded-xl">จองหอพัก</Button>
+             </Link>
           </div>
         </div>
       </div>
