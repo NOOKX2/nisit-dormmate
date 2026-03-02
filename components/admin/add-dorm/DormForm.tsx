@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Loader2 } from "lucide-react";
+import { Loader2, Wand2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { createDormAction } from "@/app/action/dorm";
@@ -10,12 +10,14 @@ import { FormError } from "@/components/ui/FormError";
 import { RoomManagement } from "./RoomManageMent";
 import { PriceRangeCard } from "./PriceRangeCard";
 import { DormInfoFields } from "./DormInFoDetail";
+import { RoomGenerator } from "./RoomGenerator";
 
 // --- Import Sub-components ---
 export function DormForm() {
     const router = useRouter();
     const [isPending, setIsPending] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [showGenerator, setShowGenerator] = useState(false); // 👈 เพิ่ม State เพื่อเปิด/ปิด Generator
 
     // 🟢 State หลักสำหรับหอพัก
     const [formData, setFormData] = useState({
@@ -32,6 +34,17 @@ export function DormForm() {
     const [rooms, setRooms] = useState([
         { name: '', price: '', description: '' }
     ]);
+
+    const handleBulkGenerate = (generatedRooms: any[]) => {
+        // นำห้องที่สร้างใหม่ไป "ต่อท้าย" หรือ "แทนที่" ห้องเดิมที่มีอยู่
+        setRooms((prev) => {
+            // ถ้าห้องแรกว่างอยู่ ให้ลบทิ้งแล้วแทนที่เลย
+            if (prev.length === 1 && prev[0].name === '') return generatedRooms;
+            return [...prev, ...generatedRooms];
+        });
+        toast.success(`สร้างห้องพักจำนวน ${generatedRooms.length} ห้องสำเร็จ!`);
+        setShowGenerator(false); // สร้างเสร็จแล้วปิดฟอร์มไป
+    };
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
@@ -69,11 +82,38 @@ export function DormForm() {
                 <DormInfoFields formData={formData} onChange={handleChange} />
 
                 {/* 2. ส่วนช่วงราคา (Grid) */}
-                <PriceRangeCard 
-                    minPrice={formData.minPrice} 
-                    maxPrice={formData.maxPrice} 
-                    onChange={handleChange} 
+                <PriceRangeCard
+                    minPrice={formData.minPrice}
+                    maxPrice={formData.maxPrice}
+                    onChange={handleChange}
                 />
+            </div>
+
+            <div className="space-y-4">
+                <div className="flex justify-between items-center px-2">
+                    <h3 className="text-lg font-bold text-gray-700">รายการห้องพัก</h3>
+                    <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => setShowGenerator(!showGenerator)}
+                        className="rounded-2xl border-emerald-200 text-emerald-600 bg-emerald-50 hover:bg-emerald-100 gap-2"
+                    >
+                        <Wand2 size={16} />
+                        {showGenerator ? "ปิดเครื่องมือสร้าง" : "ใช้เครื่องมือสร้างห้องจำนวนมาก"}
+                    </Button>
+                </div>
+
+                {showGenerator && (
+                    <div className="animate-in fade-in slide-in-from-top-4 duration-300">
+                        <RoomGenerator
+                            onGenerate={handleBulkGenerate}
+                            initialConfig={{
+                                price: 6000,       // ตั้งค่าเริ่มต้นให้แพงหน่อย
+                                capacity: 2,       // หอนี้อยู่คู่
+                                typeName: "ห้องแอร์พรีเมียม"
+                            }} />
+                    </div>
+                )}
             </div>
 
             {/* 3. ส่วนจัดการห้องพัก (Dynamic) */}

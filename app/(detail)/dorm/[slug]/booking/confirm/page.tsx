@@ -6,10 +6,10 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 
-import { BookingSummary } from "@/components/booking/BookingSummary";
+import { BookingSummary } from "@/components/booking/confirm/BookingSummary";
 
-import { PaymentSelector } from "@/components/booking/PaymentSelector";
-import { PriceDetails } from "@/components/booking/PriceDetails";
+import { PaymentSelector } from "@/components/booking/confirm/PaymentSelector";
+import { PriceDetails } from "@/components/booking/confirm/PriceDetails";
 
 export default function BookingConfirmPage() {
     const router = useRouter();
