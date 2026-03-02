@@ -11,6 +11,9 @@ export default async function AdminDashboard() {
     prisma.dorm.count(),
     prisma.dorm.findMany({
       take: 5,
+      include: {
+        priceRange: true, 
+      },
       orderBy: { createdAt: 'desc' }
     })
   ]);

@@ -1,10 +1,14 @@
+import { getDorms } from '@/app/action/dorm';
 import { DormCard } from '@/components/dorm/DormCard';
 import { DormSearch } from '@/components/dorm/DormSearch';
 import { MOCK_DORMS } from '@/lib/mock-data';
 import { Building } from 'lucide-react';
 
 
-export default function DormListingPage() {
+export default async function DormListingPage() {
+  const result = await getDorms();
+  const dorms = result.data || [];
+
   return (
     <div className="min-h-screen bg-gray-50 p-4 md:p-8 flex justify-center">
       <div className="max-w-5xl w-full">
@@ -23,12 +27,12 @@ export default function DormListingPage() {
 
         {/* Results Count */}
         <div className="mb-4 text-sm text-gray-500 font-medium">
-          พบ {MOCK_DORMS.length} แห่งที่น่าสนใจ
+          พบ {dorms.length} แห่งที่น่าสนใจ
         </div>
 
         {/* Dorm List Grid */}
         <div className="grid grid-cols-1 gap-4">
-          {MOCK_DORMS.map((dorm) => (
+          {dorms.map((dorm) => (
            
               <DormCard key={dorm.id} dorm={dorm} />
         

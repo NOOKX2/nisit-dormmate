@@ -1,14 +1,16 @@
+import { Dorm, DormPriceRange } from "@prisma/client";
 import { ChevronRight } from "lucide-react";
 import Link from "next/link";
 
-interface Dorm {
-  id: string;
-  name: string;
-  locationShort: string;
-  priceRange: string | null;
-}
+type DormWithPrice = Dorm & {
+  priceRange: DormPriceRange | null;
+};
 
-export function DormTable({ dorms }: { dorms: Dorm[] }) {
+// ปรับ Interface ให้รับ Array ของหอพักที่มีข้อมูลราคามาด้วย
+interface DormTableProps {
+  dorms: DormWithPrice[];
+}
+export function DormTable({ dorms }: DormTableProps ) {
   return (
     <div className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
       <div className="p-6 border-b border-gray-50 flex justify-between items-center">
@@ -33,7 +35,11 @@ export function DormTable({ dorms }: { dorms: Dorm[] }) {
               <tr key={dorm.id} className="hover:bg-gray-50/50 transition-colors group">
                 <td className="px-6 py-4 font-medium text-gray-900">{dorm.name}</td>
                 <td className="px-6 py-4 text-sm text-gray-500">{dorm.locationShort}</td>
-                <td className="px-6 py-4 text-sm font-semibold text-emerald-600">฿{dorm.priceRange}</td>
+                <td className="px-6 py-4 text-sm font-semibold text-emerald-600">
+                  {dorm.priceRange 
+                    ? `฿${dorm.priceRange.minPrice.toLocaleString()}` 
+                    : "N/A"}
+                </td>
                 <td className="px-6 py-4">
                   <span className="px-2 py-1 bg-emerald-100 text-emerald-700 text-[10px] font-bold rounded-full uppercase">Verified</span>
                 </td>

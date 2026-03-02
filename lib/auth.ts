@@ -1,23 +1,41 @@
-import { cookies } from 'next/headers';
-import { jwtVerify } from 'jose';
+import { cookies } from "next/headers";
+import { jwtVerify } from "jose";
+import { prisma } from "@/lib/db";
 
 const JWT_SECRET = new TextEncoder().encode(
-    process.env.JWT_SECRET
+  process.env.JWT_SECRET || "your-secret-key-safe-for-hackathon"
 );
 
 export async function getAuthUser() {
+  try {
     const cookieStore = await cookies();
-    const token = cookieStore.get('auth_token')?.value;
+    // 🟢 ตรวจสอบชื่อ Cookie ให้ตรงกัน (ใช้ 'auth_token' หรือ 'session' เลือกอย่างใดอย่างหนึ่งครับ)
+    const token = cookieStore.get("auth_token")?.value;
 
-    if (!token) {
-        return null;
-    }
+    if (!token) return null;
 
-    try {
-        const { payload } = await jwtVerify(token, JWT_SECRET);
-        return payload as { userId: string; email: string; name: string };
-        
-    } catch (error) {
-        return null;
-    }
+    // 1. ตรวจสอบความถูกต้องของ Token (Verify)
+    const { payload } = await jwtVerify(token, JWT_SECRET);
+    
+    if (!payload || !payload.userId) return null;
+
+    // 2. ดึงข้อมูล User จริงๆ จาก Database 
+    // (ขั้นตอนนี้สำคัญเพราะเราจะได้ข้อมูลล่าสุด เช่น role หรือ profile ล่าสุด)
+    const user = await prisma.user.findUnique({
+      where: { id: payload.userId as string },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+        // คุณสามารถเพิ่มฟิลด์อื่นๆ เช่น faculty, image ตรงนี้ได้เลย
+      },
+    });
+
+    return user;
+  } catch (error) {
+    // กรณี Token หมดอายุ หรือ Secret Key ไม่ตรงกัน
+    console.error("Auth Error:", error);
+    return null;
+  }
 }

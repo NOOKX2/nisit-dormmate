@@ -6,8 +6,22 @@ const nextConfig: NextConfig = {
       {
         protocol: 'https',
         hostname: 'sa.ku.ac.th',
-        port: '',
-        pathname: '/**', 
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'sg1-cdn.pgimgs.com',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'www.livinginsider.com', // 🟢 เพิ่มตัวนี้เข้าไปครับ
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'images.unsplash.com',
+        pathname: '/**',
       },
     ],
   },

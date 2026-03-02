@@ -14,94 +14,116 @@ enum Role {
 
 // 🌟 ข้อมูลผู้ใช้งาน (นิสิต)
 model User {
-  id           String    @id @default(cuid())
-  name         String?
-  email        String    @unique
-  password     String?
-  image        String?
-  faculty      String?   // คณะ (เช่น วิศวะ, เกษตร)
-  year         Int?      // ชั้นปี
-  role         Role      @default(USER)
+  id       String  @id @default(cuid())
+  name     String
+  email    String  @unique
+  password String?
+  image    String?
+  faculty  String? // คณะ (เช่น วิศวะ, เกษตร)
+  year     Int? // ชั้นปี
+  role     Role    @default(USER)
 
   // ส่วนของ Lifestyle Quiz (สำหรับหารูมเมท)
-  cleanliness  Int?      // ระดับความสะอาด (1-5)
-  sleepHabit   String?   // เวลานอน (Early Bird / Night Owl)
-  smoking      Boolean?  // สูบบุหรี่ไหม
-  
+  cleanliness Int? // ระดับความสะอาด (1-5)
+  sleepHabit  String? // เวลานอน (Early Bird / Night Owl)
+  smoking     Boolean? // สูบบุหรี่ไหม
+
   // Relationships
-  reviews      Review[]
-  bookings     Booking[]
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
+  reviews   Review[]
+  bookings  Booking[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 }
 
 // 🏢 ข้อมูลหอพัก
 model Dorm {
-  id            String    @id @default(cuid())
+  id            String          @id @default(cuid())
+  slug          String          @unique
   name          String
   description   String?
-  locationShort String    // เช่น "ซอยพหลโยธิน 45"
-  priceRange    String?   // เช่น "4,500 - 6,500"
+  locationShort String // เช่น "ซอยพหลโยธิน 45"
+  priceRange    DormPriceRange?
   imageUrl      String?
-  rating        Float     @default(0)
-  reviewCount   Int       @default(0)
-  
+  rating        Float           @default(0)
+  reviewCount   Int             @default(0)
+
   // คะแนนย่อย (Scores)
   wifiScore     Float?
   securityScore Float?
   ownerScore    Float?
-  
+
   // Relationships
-  rooms         Room[]    
-  reviews       Review[]
-  bookings      Booking[] 
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  rooms     Room[]
+  reviews   Review[]
+  bookings  Booking[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 }
 
 // 🛏️ ข้อมูลห้องพัก
 model Room {
-  id          String    @id @default(cuid())
-  name        String    // เช่น "ห้องแอร์ เตียงคู่"
+  id          String  @id @default(cuid())
+  name        String // เช่น "ห้องแอร์ เตียงคู่"
   price       Int
-  capacity    Int       @default(2) 
-  isAvailable Boolean   @default(true) 
-  
-  dormId      String
-  dorm        Dorm      @relation(fields: [dormId], references: [id], onDelete: Cascade)
-  bookings    Booking[]
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  capacity    Int     @default(2)
+  isAvailable Boolean @default(true)
+
+  dormId    String
+  dorm      Dorm      @relation(fields: [dormId], references: [id], onDelete: Cascade)
+  bookings  Booking[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 }
 
 // 💬 ข้อมูลรีวิว
 model Review {
-  id            String   @id @default(cuid())
-  rating        Int
-  comment       String
-  helpfulCount  Int      @default(0)
-  
-  userId        String
-  user          User     @relation(fields: [userId], references: [id])
-  dormId        String
-  dorm          Dorm     @relation(fields: [dormId], references: [id])
-  
-  createdAt     DateTime @default(now())
+  id           String @id @default(cuid())
+  rating       Int
+  comment      String
+  helpfulCount Int    @default(0)
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+  dormId String
+  dorm   Dorm   @relation(fields: [dormId], references: [id])
+
+  createdAt DateTime @default(now())
 }
 
 // 📅 ข้อมูลการจอง
 model Booking {
-  id           String    @id @default(cuid())
-  status       String    @default("PENDING") // PENDING, CONFIRMED, CANCELLED
-  checkInDate  DateTime?
-  
-  userId       String
-  user         User      @relation(fields: [userId], references: [id])
-  dormId       String
-  dorm         Dorm      @relation(fields: [dormId], references: [id])
-  roomId       String?   
-  room         Room?     @relation(fields: [roomId], references: [id])
-  
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
+  id     String @id @default(cuid())
+  dormId String
+  dorm   Dorm   @relation(fields: [dormId], references: [id])
+
+  // ข้อมูลผู้จอง (แบบง่ายสำหรับ Demo)
+  customerName  String
+  customerPhone String
+
+  // รายละเอียดการจอง
+  roomType    String @default("ห้องมาตรฐาน")
+  price       Int
+  deposit     Int
+  serviceFee  Int
+  totalAmount Int
+  status      String @default("PENDING") // PENDING, SUCCESS, CANCELLED
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User?    @relation(fields: [userId], references: [id])
+  userId    String?
+  room      Room?    @relation(fields: [roomId], references: [id])
+  roomId    String?
+}
+
+model DormPriceRange {
+  id       String @id @default(cuid())
+  minPrice Int // เก็บเป็น Int เพื่อให้คำนวณหรือ Filter ง่าย
+  maxPrice Int
+
+  // 🔑 Foreign Key เชื่อมไปยัง Dorm
+  dormId String @unique // @unique สำหรับ One-to-One
+  dorm   Dorm   @relation(fields: [dormId], references: [id], onDelete: Cascade)
+
+  updatedAt DateTime @updatedAt
 }
