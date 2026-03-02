@@ -36,8 +36,8 @@ export function RoomManagement({ rooms, setRooms }: { rooms: Room[], setRooms: a
                 {rooms.map((room, index) => (
                     <div key={index} className="group p-6 bg-white border border-gray-200 rounded-[2rem] space-y-4 relative transition-all hover:border-emerald-100 shadow-sm">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <RoomInput label="ชื่อประเภทห้อง" value={room.name} placeholder="เช่น ห้องแอร์" onChange={(v) => handleRoomChange(index, 'name', v)} />
-                            <RoomInput label="ราคาต่อเดือน" value={room.price} placeholder="5500" type="number" onChange={(v) => handleRoomChange(index, 'price', v)} />
+                            <RoomInput type="text" label="ชื่อประเภทห้อง" value={room.name} placeholder="เช่น ห้องแอร์" onChange={(v) => handleRoomChange(index, 'name', v)} />
+                            <RoomInput  label="ราคาต่อเดือน" value={room.price} placeholder="5500" type="number" onChange={(v) => handleRoomChange(index, 'price', v)} />
                         </div>
                         <RoomInput label="รายละเอียด (Option)" value={room.description} placeholder="เช่น มีระเบียง" onChange={(v) => handleRoomChange(index, 'description', v)} />
 

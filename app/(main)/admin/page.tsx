@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import { StatCard } from "@/components/admin/StatCard";
 import { DormTable } from "@/components/admin/DormTable";
 
+export const dynamic = "force-dynamic";
+
 export default async function AdminDashboard() {
   const [userCount, dormCount, latestDorms] = await Promise.all([
     prisma.user.count(),

@@ -64,6 +64,7 @@ model Dorm {
 model Room {
   id          String  @id @default(cuid())
   name        String // เช่น "ห้องแอร์ เตียงคู่"
+  description String?
   price       Int
   capacity    Int     @default(2)
   isAvailable Boolean @default(true)

@@ -26,7 +26,9 @@ export default function DormBookingPage() {
     // 1. Fetch ข้อมูลหอพักและห้องพักจาก Database
     useEffect(() => {
         async function init() {
-            const data = await getDormBySlug(slug as string);
+            const decodedSlug = decodeURIComponent(slug as string);
+            const data = await getDormBySlug(decodedSlug as string);
+            console.log('data', data);
             if (data) {
                 setDorm(data);
                 // Pre-fill ชื่อจาก Auth Context
@@ -84,47 +86,9 @@ export default function DormBookingPage() {
                     </p>
                 </div>
 
-                {/* 🟢 1. เลือกประเภทห้องพัก (UI ใหม่แบบ Card) */}
-                <section className="space-y-4">
+                
 
-                    <div className="grid gap-4">
-                        {dorm?.rooms?.map((room: any) => (
-                            <label
-                                key={room.id}
-                                className={`relative flex items-center justify-between p-6 bg-white border-2 rounded-3xl cursor-pointer transition-all duration-300 shadow-sm ${formData.roomId === room.id
-                                        ? "border-emerald-500 ring-4 ring-emerald-50/50"
-                                        : "border-gray-100 hover:border-emerald-200 hover:shadow-md"
-                                    }`}
-                            >
-                                <input
-                                    type="radio"
-                                    name="room"
-                                    className="absolute opacity-0"
-                                    onChange={() => setFormData({ ...formData, roomId: room.id })}
-                                    checked={formData.roomId === room.id}
-                                />
-                                <div className="flex items-center gap-4">
-                                    <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-colors ${formData.roomId === room.id ? "border-emerald-500 bg-emerald-500" : "border-gray-300"
-                                        }`}>
-                                        {formData.roomId === room.id && <div className="w-2.5 h-2.5 rounded-full bg-white" />}
-                                    </div>
-                                    <div>
-                                        <p className="font-bold text-lg text-gray-900">{room.name}</p>
-                                        <p className="text-xs font-medium text-gray-400 uppercase tracking-wider">
-                                            {room.description || "ว่างพร้อมเข้าอยู่"}
-                                        </p>
-                                    </div>
-                                </div>
-                                <div className="text-right">
-                                    <p className="text-2xl font-black text-emerald-600">฿{room.price.toLocaleString()}</p>
-                                    <p className="text-[10px] font-bold text-gray-400">/ เดือน</p>
-                                </div>
-                            </label>
-                        ))}
-                    </div>
-                </section>
-
-                {/* 🟢 2. ข้อมูลนิสิตผู้จอง (Card สีขาวสะอาดตา) */}
+                {/* 🟢 1. ข้อมูลนิสิตผู้จอง (Card สีขาวสะอาดตา) */}
                 <section className="space-y-4">
                     <div className="flex items-center gap-3">
                         <div className="p-2.5 bg-emerald-50 rounded-xl text-emerald-600 shadow-sm">

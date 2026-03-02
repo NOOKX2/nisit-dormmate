@@ -23,6 +23,11 @@ const nextConfig: NextConfig = {
         hostname: 'images.unsplash.com',
         pathname: '/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'www.wonderfulpackage.com', // 🟢 เพิ่มตัวนี้เข้าไปครับ
+        pathname: '/**',
+      },
     ],
   },
 };

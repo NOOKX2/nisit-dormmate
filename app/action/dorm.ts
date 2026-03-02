@@ -22,6 +22,15 @@ export async function createDormAction(formData: FormData) {
     const maxPrice = parseInt(formData.get("maxPrice") as string) || 0;
     const basePrice = parseInt(formData.get("basePrice") as string) || 0;
 
+    const roomsRaw = formData.get("rooms") as string;
+    let roomsData = [];
+
+    try {
+        roomsData = JSON.parse(roomsRaw);
+    } catch (e) {
+        console.error("Parse rooms error:", e);
+    }
+
     if (!name || !locationShort) {
         return { error: "กรุณากรอกข้อมูลที่จำเป็น (ชื่อและที่ตั้ง) ให้ครบถ้วน" };
     }
@@ -48,15 +57,29 @@ export async function createDormAction(formData: FormData) {
                 },
             });
 
-            await tx.room.create({
-                data: {
-                    name: "ห้องมาตรฐาน",
-                    price: basePrice,
-                    capacity: 2,
-                    isAvailable: true,
-                    dormId: dorm.id,
-                },
-            });
+           if (roomsData.length > 0) {
+                await tx.room.createMany({
+                    data: roomsData.map((room: any) => ({
+                        name: room.name,
+                        price: parseInt(room.price) || 0,
+                        description: room.description || "",
+                        capacity: 2, // ค่า Default
+                        isAvailable: true,
+                        dormId: dorm.id,
+                    })),
+                });
+            } else {
+                // ถ้าไม่มีการส่งห้องมาจริงๆ ค่อยสร้างห้องมาตรฐานเป็น fallback
+                await tx.room.create({
+                    data: {
+                        name: "ห้องมาตรฐาน",
+                        price: basePrice,
+                        capacity: 2,
+                        isAvailable: true,
+                        dormId: dorm.id,
+                    },
+                });
+            }
 
             return dorm;
         });
@@ -103,6 +126,7 @@ export async function getDormBySlug(slug: string) {
       },
       include: {
         priceRange: true,
+        rooms: true,
       },
     });
 

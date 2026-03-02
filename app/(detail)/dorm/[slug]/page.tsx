@@ -16,9 +16,9 @@ export default async function DormDetailPage({ params }: PageProps) {
 
   // 🟢 1. ดึงข้อมูลจริงจาก Database ผ่าน Server Action
   const resolvedParams = await params;
-  const slug = resolvedParams.slug;
-
+  const slug = decodeURIComponent(resolvedParams.slug);
   const dorm =  await getDormBySlug(slug);
+  console.log("Slug:", slug);
 
   // 2. ถ้าไม่พบข้อมูล ให้แสดงหน้า 404
   if (!dorm) {
