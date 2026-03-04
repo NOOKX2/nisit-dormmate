@@ -4,8 +4,14 @@ import { jwtVerify } from 'jose';
 import { Building2, Calendar, ChevronRight, Clock, Inbox, DoorOpen } from 'lucide-react';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
+import { Booking, Dorm, Room } from '@prisma/client';
 
 const SECRET = new TextEncoder().encode(process.env.JWT_SECRET || "");
+
+type BookingWithDorm = Booking & {
+    dorm: Dorm;
+    room: Room | null;
+};
 
 export default async function MyBookingsPage() {
     const cookieStore = await cookies();
@@ -53,7 +59,7 @@ export default async function MyBookingsPage() {
                         </Link>
                     </div>
                 ) : (
-                    bookings.map((booking) => (
+                    bookings.map((booking: BookingWithDorm) => (
                         <Link
                             key={booking.id}
                             href={`/dorm/${booking.dorm.slug}/booking/success?id=${booking.id}`}
@@ -89,10 +95,10 @@ export default async function MyBookingsPage() {
 
                                             {/* แสดงสถานะตามข้อมูลจริงใน DB (PENDING, SUCCESS, CANCELLED) */}
                                             <div className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border ${booking.status === 'SUCCESS'
-                                                    ? 'bg-emerald-50 text-emerald-600 border-emerald-100'
-                                                    : booking.status === 'CANCELLED'
-                                                        ? 'bg-red-50 text-red-600 border-red-100'
-                                                        : 'bg-amber-50 text-amber-600 border-amber-100'
+                                                ? 'bg-emerald-50 text-emerald-600 border-emerald-100'
+                                                : booking.status === 'CANCELLED'
+                                                    ? 'bg-red-50 text-red-600 border-red-100'
+                                                    : 'bg-amber-50 text-amber-600 border-amber-100'
                                                 }`}>
                                                 <span className={`w-1.5 h-1.5 rounded-full ${booking.status === 'SUCCESS' ? 'bg-emerald-500' : 'bg-amber-500 animate-pulse'}`}></span>
                                                 {booking.status}
