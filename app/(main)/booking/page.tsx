@@ -56,7 +56,7 @@ export default async function MyBookingsPage() {
                     bookings.map((booking) => (
                         <Link
                             key={booking.id}
-                            href={`/dorm/${booking.dorm.slug}/booking/confirm/success?id=${booking.id}`}
+                            href={`/dorm/${booking.dorm.slug}/booking/success?id=${booking.id}`}
                             className="group block bg-white rounded-[2rem] p-6 shadow-sm border border-gray-100 hover:shadow-xl hover:border-emerald-200 hover:-translate-y-1 transition-all duration-300"
                         >
                             <div className="flex justify-between items-center">
