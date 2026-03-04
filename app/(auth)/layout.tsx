@@ -1,4 +1,4 @@
-import { NavbarOnlyLogo } from "@/components/navbar/NavbarOnlyLogo";
+import { NavbarOnlyLogo } from "@/components/Navbar/NavbarOnlyLogo";
 
 export default function MainLayout({ children }: { children: React.ReactNode }) {
   return (
