@@ -51,8 +51,11 @@ export async function loginAction(formData: FormData) {
             maxAge: 60 * 60 * 24 * 7, 
             path: '/',
         });
-
+        const { password: _, ...safeUser } = user;
+       
         console.log(`User ${user.name} logged in and session created!`);
+        
+         return { success: true, user: safeUser };
 
     } catch (error: any) {
         console.error("Login Error:", error);

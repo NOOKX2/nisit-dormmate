@@ -7,8 +7,12 @@ import Link from 'next/link';
 import { useState } from 'react';
 import { loginAction } from '../../action/login';
 import { FormError } from '@/components/ui/FormError'; // อย่าลืม Import Component Error ที่เราสร้างไว้ครับ
+import { useAuth } from '@/context/AuthContext';
+import { useRouter } from 'next/navigation';
 
 export default function LoginPage() {
+  const {login} = useAuth();
+  const router = useRouter();
   const [formData, setFormData] = useState({ email: '', password: '' });
   const [isPending, setIsPending] = useState(false); 
   const [error, setError] = useState<string | null>(null);
@@ -29,6 +33,12 @@ export default function LoginPage() {
     if (result?.error) {
       setError(result.error);
       setIsPending(false); // ปิดสถานะโหลดเพื่อให้แก้ข้อมูลได้
+    } else if (result?.success && result.user) {
+      console.log("Login success, updating context...");
+      login(result.user);
+
+      router.push('/');
+      router.refresh();
     }
     // หมายเหตุ: ถ้าสำเร็จ loginAction มักจะสั่ง redirect ไปหน้าอื่นโดยอัตโนมัติครับ
   };

@@ -1,12 +1,14 @@
 "use client";
 
-import { createContext, useContext, useState, ReactNode } from 'react';
-import { User } from '@prisma/client';
+import { createContext, useContext, useState, ReactNode, useEffect } from 'react';
+import { User  } from '@prisma/client';
 import { logoutAction } from '@/app/action/logout';
 
+type SafeUser = Omit<User, 'password'>;
+
 interface AuthContextType {
-    user: User | null;
-    login: (userData: User) => void;
+    user: SafeUser | null;
+    login: (userData: SafeUser) => void;
     logout: () => void;
     isLoading: boolean;
 }
@@ -16,16 +18,31 @@ export const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 export default function AuthProvider({
     children,
-    initialUser
+    initialUser = null
 }: {
     children: ReactNode,
-    initialUser: User | null
+    initialUser?: SafeUser | null
 }) {
-    const [user, setUser] = useState<User | null>(initialUser);
+    const [user, setUser] = useState<SafeUser | null>(initialUser);
     const [isLoading, setIsLoading] = useState(false);
 
-    const login = (userData: User) => {
+    useEffect(() => {
+        const savedUser = localStorage.getItem("nisit_user");
+        if (savedUser && !user) { // ถ้าใน localStorage มี แต่ใน State ไม่มี (เช่นตอน Refresh)
+            try {
+                setUser(JSON.parse(savedUser));
+            } catch (error) {
+                console.error("Auth: Failed to parse user", error);
+                localStorage.removeItem("nisit_user");
+            }
+        }
+        setIsLoading(false);
+    }, [user]);
+
+    const login = (userData: SafeUser) => {
         setUser(userData);
+        console.log('create local storage');
+        localStorage.setItem("nisit_user", JSON.stringify(userData));
     };
 
     const logout = async () => {
@@ -33,6 +50,7 @@ export default function AuthProvider({
         try {
             await logoutAction();
             setUser(null);
+            localStorage.removeItem("nisit_user");
 
         } catch (error) {
             console.error("Logout failed", error);
@@ -55,5 +73,6 @@ export function useAuth() {
     if (context === undefined) {
         throw new Error("useAuth must be used within an AuthProvider");
     }
+    console.log('context', context);
     return context;
 }

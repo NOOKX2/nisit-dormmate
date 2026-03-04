@@ -1,7 +1,6 @@
 import { getDorms } from '@/app/action/dorm';
 import { DormCard } from '@/components/dorm/DormCard';
 import { DormSearch } from '@/components/dorm/DormSearch';
-import { MOCK_DORMS } from '@/lib/mock-data';
 import { Building } from 'lucide-react';
 
 
