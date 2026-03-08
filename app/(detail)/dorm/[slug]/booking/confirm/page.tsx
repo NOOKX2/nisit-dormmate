@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, use } from "react";
-import { ChevronLeft, Info, Loader2, User, Phone, Calendar } from "lucide-react"; // เพิ่ม Icon
+import { ChevronLeft, Info, Loader2 } from "lucide-react"; // เพิ่ม Icon
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -12,7 +12,7 @@ import { BookingSummary } from "@/components/booking/confirm/BookingSummary";
 import { PaymentSelector } from "@/components/booking/confirm/PaymentSelector";
 import { PriceDetails } from "@/components/booking/confirm/PriceDetails";
 import { FormError } from "@/components/ui/FormError";
-import Link from "next/link";
+import { ContactInfo } from "@/components/booking/confirm/ContactInfo";
 
 interface PageProps {
     searchParams: Promise<{ [key: string]: string | undefined }>;
@@ -48,22 +48,17 @@ export default function BookingConfirmPage({ searchParams }: PageProps) {
 
     const handleConfirm = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        console.log('booking before user');
 
         if (!user) {
-            console.log('no user');
             toast.error("กรุณาเข้าสู่ระบบก่อนทำรายการ");
             setError('ไม่พบผู้ใช้งาน');
             return;
         }
 
-        console.log('booking after user');
 
         setIsSubmitting(true);
-        console.log('booking before process');
 
         try {
-            console.log('booking processs');
             const result = await processBookingAction({
                 userId: user.id,
                 roomId: roomInfo.roomId,
@@ -73,7 +68,6 @@ export default function BookingConfirmPage({ searchParams }: PageProps) {
             });
 
             if (result?.success === true && 'bookingId' in result) {
-                console.log("booking success");
                 toast.success("จองสำเร็จ! ห้องถูกล็อคให้คุณเรียบร้อย");
                 router.push(`../booking/success?id=${result.bookingId}`);
                 router.refresh();
@@ -81,7 +75,6 @@ export default function BookingConfirmPage({ searchParams }: PageProps) {
                 setError(result?.error)
             }
         } catch (error: any) {
-            console.log("booking success");
             setError(error);
             toast.error(error.message || "เกิดข้อผิดพลาดในการจอง");
         } finally {
@@ -89,7 +82,6 @@ export default function BookingConfirmPage({ searchParams }: PageProps) {
         }
     };
 
-    console.log(`error ${error}`);
 
     if (loading) return (
         <div className="flex h-screen items-center justify-center">
@@ -122,32 +114,11 @@ export default function BookingConfirmPage({ searchParams }: PageProps) {
                     />
 
                     {/* 👤 ส่วนที่เพิ่มใหม่: ข้อมูลผู้ใช้งาน/ผู้ติดต่อ */}
-                    <section className="bg-white p-6 rounded-[2rem] border border-gray-100 shadow-sm space-y-4">
-                        <div className="flex items-center gap-2 mb-2">
-                            <div className="p-2 bg-emerald-50 rounded-full text-emerald-600">
-                                <User size={18} />
-                            </div>
-                            <h3 className="font-bold">ข้อมูลผู้ติดต่อ</h3>
-                        </div>
-
-                        <div className="grid grid-cols-1 gap-4 text-sm">
-                            <div className="flex items-center justify-between py-1 border-b border-gray-50">
-                                <span className="text-gray-500">ชื่อ-นามสกุล</span>
-                                <span className="font-semibold">{params.contactName || user?.name || "-"}</span>
-                            </div>
-                            <div className="flex items-center justify-between py-1 border-b border-gray-50">
-                                <span className="text-gray-500">เบอร์โทรศัพท์</span>
-                                <span className="font-semibold">{params.phone || "-"}</span>
-                            </div>
-                            <div className="flex items-center justify-between py-1">
-                                <span className="text-gray-500">วันที่คาดว่าจะเข้าอยู่</span>
-                                <div className="flex items-center gap-1.5 font-semibold text-emerald-600">
-                                    <Calendar size={14} />
-                                    <span>{params.moveInDate || "-"}</span>
-                                </div>
-                            </div>
-                        </div>
-                    </section>
+                   <ContactInfo
+                        name={params.contactName || user?.name}
+                        phone={params.phone}
+                        moveInDate={params.moveInDate}
+                    />
 
                     <PriceDetails
                         price={roomInfo.price}

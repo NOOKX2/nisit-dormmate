@@ -1,5 +1,6 @@
 "use server";
 
+import { getAuthUser } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { revalidatePath } from "next/cache";
 
@@ -66,6 +67,7 @@ export async function createDormAction(formData: FormData) {
                         capacity: 2, // ค่า Default
                         isAvailable: true,
                         dormId: dorm.id,
+                        floor: room.floor ? parseInt(room.floor) : null,
                     })),
                 });
             } else {
@@ -116,24 +118,87 @@ export async function getDorms() {
 }
 
 // เพิ่มต่อในไฟล์ app/action/dorm.ts
+// app/action/dorm.ts
+
 export async function getDormBySlug(slug: string) {
   try {
     const dorm = await prisma.dorm.findUnique({
       where: { 
-        // ถ้าคุณเปลี่ยนไปใช้ slug ให้ใช้ slug: slug
-        // แต่ถ้าตอนนี้ใน DB มีแค่ ID ให้ใช้ id: slug ไปก่อนครับ
         slug: slug 
       },
       include: {
         priceRange: true,
-        rooms: true,
+        rooms: {
+          // 🌟 เพิ่มส่วนการเรียงลำดับตรงนี้ครับ
+          orderBy: [
+            { floor: 'asc' }, // เรียงตามชั้นจาก 1 ไป 10
+            { name: 'asc' }   // ถ้าชั้นเดียวกัน ให้เรียงตามเลขห้อง เช่น 101, 102
+          ],
+          include: {
+            bookings: {
+              where: {
+                status: "SUCCESS",
+              },
+              include: {
+                user: true
+              }
+            }
+          }
+        },
       },
     });
 
     if (!dorm) return null;
-    return dorm;
+
+    // --- 🪄 ขั้นตอนการปั้นข้อมูล (เหมือนเดิม) ---
+    const roomsWithRoommateData = dorm.rooms.map((room) => {
+      const activeBooking = room.bookings[0]; 
+      const roommateUser = activeBooking?.user;
+
+      return {
+        ...room,
+        // มั่นใจว่า floor ถูกส่งออกไปใช้งานที่ Frontend ด้วย
+        floor: room.floor, 
+        existingRoommate: roommateUser ? {
+          name: roommateUser.name,
+          major: roommateUser.faculty || "นิสิต",
+          matchPercent: 85, 
+        } : null,
+      };
+    });
+
+    return {
+      ...dorm,
+      rooms: roomsWithRoommateData,
+    };
+
   } catch (error) {
     console.error("Fetch Dorm Detail Error:", error);
     return null;
+  }
+}
+
+export async function checkUserBookingStatus(dormId: string) {
+  try {
+    // 1. ดึง User จาก Token/Cookie (ใช้ฟังก์ชันที่คุณเขียน)
+    const user = await getAuthUser();
+
+    // ถ้าไม่ Login ถือว่ายังไม่เคยจอง
+    if (!user) return false;
+
+    // 2. เช็คในฐานข้อมูล
+    const existingBooking = await prisma.booking.findFirst({
+      where: {
+        userId: user.id,
+        dormId: dormId,
+        status: "SUCCESS",
+      },
+    });
+
+    // ถ้าเจอข้อมูลคืนค่า true, ถ้าไม่เจอคืนค่า false
+    return !!existingBooking;
+  } catch (error) {
+    console.error("Check Booking Status Error:", error);
+    return false;
   }
 }

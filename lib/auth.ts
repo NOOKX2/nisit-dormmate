@@ -23,13 +23,6 @@ export async function getAuthUser() {
     // (ขั้นตอนนี้สำคัญเพราะเราจะได้ข้อมูลล่าสุด เช่น role หรือ profile ล่าสุด)
     const user = await prisma.user.findUnique({
       where: { id: payload.userId as string },
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        role: true,
-        // คุณสามารถเพิ่มฟิลด์อื่นๆ เช่น faculty, image ตรงนี้ได้เลย
-      },
     });
 
     return user;

@@ -1,12 +1,14 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
+import { completeQuiz, getQuizUser } from '@/app/action/profile'
 
-import { motion, AnimatePresence } from "framer-motion" 
+import { motion, AnimatePresence } from "framer-motion"
 
-import { 
-  Sun, Moon, BookOpen, Users, Lock, Sparkles, 
-  Trash2, Thermometer, AlarmSmokeIcon, Wine, ChevronRight, Clock 
+import {
+  Sun, Moon, BookOpen, Users, Lock, Sparkles,
+  Trash2, Thermometer, AlarmSmokeIcon, Wine, ChevronRight, Clock
 } from 'lucide-react'
 
 // ข้อมูลคำถาม
@@ -73,6 +75,18 @@ export default function QuizPage() {
   const [currentStep, setCurrentStep] = useState(0)
   const [answers, setAnswers] = useState<Record<string, string>>({})
   const [isFinished, setIsFinished] = useState(false)
+  const [user, setUser] = useState<any>(null)
+  const [isLoading, setIsLoading] = useState(false)
+  const router = useRouter()
+
+  // Get auth user on component mount
+  useEffect(() => {
+    const getUser = async () => {
+      const authUser = await getQuizUser()
+      setUser(authUser)
+    }
+    getUser()
+  }, [])
 
   const progress = ((currentStep + 1) / questions.length) * 100
 
@@ -89,11 +103,30 @@ export default function QuizPage() {
     }
   }
 
+  const handleCompleteQuiz = async () => {
+    if (!user?.id) return
+
+    setIsLoading(true)
+    try {
+      const updatedData = await completeQuiz(user.id, answers);
+
+      console.log('Update Status Success:', updatedData.hasCompletedQuiz);
+
+      router.refresh();
+      // Redirect to profile after successful completion
+      router.push('/match')
+    } catch (error) {
+      console.error('Error completing quiz:', error)
+      setIsLoading(false)
+    }
+  }
+
   if (isFinished) {
+
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50 p-6">
         <motion.div
-          initial={{ scale: 0.9, opacity: 0 }} 
+          initial={{ scale: 0.9, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           className="bg-white p-10 rounded-[2.5rem] shadow-2xl text-center max-w-md w-full border border-emerald-100"
         >
@@ -102,11 +135,12 @@ export default function QuizPage() {
           </div>
           <h2 className="text-3xl font-black text-gray-900 mb-4">วิเคราะห์ข้อมูลเสร็จสิ้น!</h2>
           <p className="text-gray-500 mb-8">เรากำลังหาตารางเรียนและไลฟ์สไตล์ที่ตรงกับคุณมากที่สุด...</p>
-          <button 
-            onClick={() => window.location.href = '/profile'}
-            className="w-full bg-emerald-600 text-white py-4 rounded-2xl font-bold shadow-lg shadow-emerald-200 hover:bg-emerald-700 transition-all"
+          <button
+            onClick={handleCompleteQuiz}
+            disabled={isLoading}
+            className="w-full bg-emerald-600 text-white py-4 rounded-2xl font-bold shadow-lg shadow-emerald-200 hover:bg-emerald-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            ดูรูมเมทที่แนะนำ
+            {isLoading ? 'กำลังบันทึก...' : 'ดูรูมเมทที่แนะนำ'}
           </button>
         </motion.div>
       </div>
@@ -128,7 +162,7 @@ export default function QuizPage() {
             <span className="text-gray-900 font-black text-xl">{Math.round(progress)}%</span>
           </div>
           <div className="h-3 w-full bg-gray-200 rounded-full overflow-hidden">
-            <motion.div 
+            <motion.div
               className="h-full bg-emerald-500"
               initial={{ width: 0 }}
               animate={{ width: `${progress}%` }}

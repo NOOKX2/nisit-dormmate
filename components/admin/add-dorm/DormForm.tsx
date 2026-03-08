@@ -43,6 +43,7 @@ export function DormForm() {
             return [...prev, ...generatedRooms];
         });
         toast.success(`สร้างห้องพักจำนวน ${generatedRooms.length} ห้องสำเร็จ!`);
+        console.log(rooms);
         setShowGenerator(false); // สร้างเสร็จแล้วปิดฟอร์มไป
     };
 

@@ -1,7 +1,7 @@
 import { prisma } from '@/lib/db';
 import { cookies } from 'next/headers';
 import { jwtVerify } from 'jose';
-import { Building2, Calendar, ChevronRight, Clock, Inbox, DoorOpen } from 'lucide-react';
+import { Building2, Calendar, ChevronRight, Inbox, DoorOpen } from 'lucide-react';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { Booking, Dorm, Room } from '@prisma/client';

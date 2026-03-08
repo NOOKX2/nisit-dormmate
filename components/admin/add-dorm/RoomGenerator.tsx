@@ -37,10 +37,12 @@ export function RoomGenerator({ onGenerate, initialConfig }: RoomGeneratorProps)
           name: `ห้อง ${roomNum}`,
           price: config.price.toString(),
           capacity: config.capacity,
-          description: `${config.typeName} - ชั้น ${f}`
+          description: `${config.typeName} - ชั้น ${f}`,
+          floor: f,
         });
       }
     }
+    console.log('batch', batch);
     onGenerate(batch);
   };
 

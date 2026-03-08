@@ -43,12 +43,8 @@ export default async function ProfilePage() {
                 </div>
 
                 {/* Lifestyle Section */}
-                <LifestyleCard 
-                    cleanliness={user.cleanliness} 
-                    sleepHabit={user.sleepHabit} 
-                    smoking={user.smoking} 
-                />
-
+               <LifestyleCard user={user} />
+               
                 {/* Settings & History Menu */}
                 <ActionMenu />
             </div>

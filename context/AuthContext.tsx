@@ -41,7 +41,7 @@ export default function AuthProvider({
 
     const login = (userData: SafeUser) => {
         setUser(userData);
-        console.log('create local storage');
+        
         localStorage.setItem("nisit_user", JSON.stringify(userData));
     };
 
@@ -73,6 +73,6 @@ export function useAuth() {
     if (context === undefined) {
         throw new Error("useAuth must be used within an AuthProvider");
     }
-    console.log('context', context);
+
     return context;
 }

@@ -14,25 +14,36 @@ enum Role {
 
 // 🌟 ข้อมูลผู้ใช้งาน (นิสิต)
 model User {
-  id       String  @id @default(cuid())
-  name     String
-  email    String  @unique
-  password String?
-  image    String?
-  faculty  String? // คณะ (เช่น วิศวะ, เกษตร)
-  year     Int? // ชั้นปี
-  role     Role    @default(USER)
+  id               String    @id @default(cuid())
+  name             String
+  email            String    @unique
+  password         String?
+  image            String?
+  faculty          String?   // คณะ (เช่น วิศวะ, เกษตร)
+  year             Int?      // ชั้นปี
+  role             Role      @default(USER)
 
-  // ส่วนของ Lifestyle Quiz (สำหรับหารูมเมท)
-  cleanliness Int? // ระดับความสะอาด (1-5)
-  sleepHabit  String? // เวลานอน (Early Bird / Night Owl)
-  smoking     Boolean? // สูบบุหรี่ไหม
+  // --- Lifestyle Quiz Data (สำหรับหารูมเมท) ---
+  // ทุกฟิลด์เป็น Optional (?) เพราะ user จะมีค่าเหล่านี้หลังทำ Quiz เสร็จเท่านั้น
+  
+  study_time       String?   // morning, afternoon, flexible
+  location         String?   // room, outside
+  guest_policy     String?   // open, limit, private
+  cleanliness      String?   // neat, messy
+  air_con          String?   // save, cool
+  smoking          Boolean?   // yes, no
+  sleepHabit       String?
+  
+  // เก็บสถานะว่าทำ Quiz จบหรือยัง
+  hasCompletedQuiz Boolean   @default(false)
 
-  // Relationships
-  reviews   Review[]
-  bookings  Booking[]
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  // --- Relationships ---
+  bookings         Booking[]
+  reviews          Review[]
+
+  // --- Metadata ---
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
 }
 
 // 🏢 ข้อมูลหอพัก
@@ -68,6 +79,7 @@ model Room {
   price       Int
   capacity    Int     @default(2)
   isAvailable Boolean @default(true)
+  floor       Int     @default(1)
 
   dormId    String
   dorm      Dorm      @relation(fields: [dormId], references: [id], onDelete: Cascade)

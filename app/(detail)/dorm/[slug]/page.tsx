@@ -5,7 +5,7 @@ import { BackButton } from '@/components/ui/BackButton';
 import { Button } from '@/components/ui/button';
 import { MapPin, Star, Wifi, Shield, Heart } from 'lucide-react';
 import Link from 'next/link';
-import { getDormBySlug } from '@/app/action/dorm';
+import { checkUserBookingStatus, getDormBySlug } from '@/app/action/dorm';
 import { notFound } from 'next/navigation';
 
 interface PageProps {
@@ -18,12 +18,13 @@ export default async function DormDetailPage({ params }: PageProps) {
   const resolvedParams = await params;
   const slug = decodeURIComponent(resolvedParams.slug);
   const dorm =  await getDormBySlug(slug);
-  console.log("Slug:", slug);
 
   // 2. ถ้าไม่พบข้อมูล ให้แสดงหน้า 404
   if (!dorm) {
     notFound();
   }
+
+ const hasBooked = await checkUserBookingStatus(dorm.id);
 
   // 3. เตรียมฟอร์แมตราคา (ดึงจาก Relation priceRange)
   const formattedMinPrice = dorm.priceRange 
@@ -100,11 +101,22 @@ export default async function DormDetailPage({ params }: PageProps) {
         {/* Sticky Bottom Button */}
         <div className="fixed bottom-0 left-0 right-0 p-4 bg-white border-t border-gray-100 flex justify-center z-50">
           <div className="max-w-3xl w-full">
-            <Link href={`/dorm/${dorm.slug}/booking`}>
-              <Button className="py-6 w-full text-lg rounded-2xl bg-gray-900 hover:bg-black text-white transition-all active:scale-[0.98]">
-                จองหอพักนี้
+            {hasBooked ? (
+              /* 🔴 กรณีที่ User จองหอนี้ไปแล้ว */
+              <Button 
+                disabled 
+                className="py-6 w-full text-lg rounded-2xl bg-gray-200 text-gray-500 cursor-not-allowed shadow-none border-none"
+              >
+                จองหอพักเรียบร้อยแล้ว
               </Button>
-            </Link>
+            ) : (
+              /* 🟢 กรณีที่ User ยังไม่เคยจอง */
+              <Link href={`/dorm/${dorm.slug}/booking`} className="w-full">
+                <Button className="py-6 w-full text-lg rounded-2xl bg-gray-900 hover:bg-black text-white transition-all active:scale-[0.98]">
+                  จองหอพักนี้
+                </Button>
+              </Link>
+            )}
           </div>
         </div>
       </div>

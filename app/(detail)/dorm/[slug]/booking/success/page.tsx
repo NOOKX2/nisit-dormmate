@@ -1,4 +1,3 @@
-import { Suspense } from "react";
 import Link from "next/link";
 import { CheckCircle2, Home, Calendar, MapPin, Receipt, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
