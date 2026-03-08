@@ -13,6 +13,8 @@ services:
       - postgres_data:/var/lib/postgresql/data
 
   app:
+    stop_grace_period: 1s
+    init: true
     build:
       context: .
       dockerfile: Dockerfile

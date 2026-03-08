@@ -10,6 +10,7 @@ export interface BookingWithUser extends Booking {
 // 3. Interface หลักสำหรับ Room ที่ใช้แสดงผลในหน้า UI
 export interface RoomWithBookingRoommate extends Room {
   // ข้อมูลจาก Prisma (Optional เพราะบางห้องอาจว่าง)
+  floor: number;
   bookings?: BookingWithUser[];
 
   // ข้อมูลที่ปั้นเพิ่มสำหรับ Card

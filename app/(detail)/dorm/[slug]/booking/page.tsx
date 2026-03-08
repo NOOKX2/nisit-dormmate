@@ -131,7 +131,6 @@ export default function DormBookingPage() {
                         {dorm?.rooms?.map((room: RoomWithBookingRoommate) => {
                             const roommateUser = room.bookings?.[0]?.user;
 
-                           
 
                             // 🟢 1. คำนวณ % จากหน้าจอนี้เลย
                             const calculatedPercent = (currentUser && roommateUser)
