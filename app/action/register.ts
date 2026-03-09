@@ -38,7 +38,7 @@ export async function registerAction(formData: FormData) {
         if (error.code === 'P2002') {
             return { error: "อีเมลนี้ถูกใช้งานไปแล้ว" };
         }
-        return { error: `สมัครสมาชิกไม่สำเร็จ หรณาลองใหม่อีกครั้ง ${error}` };
+        return { error: `สมัครสมาชิกไม่สำเร็จ กรุณาลองใหม่อีกครั้ง ${error}` };
     }
 
     redirect('/login');

@@ -8,43 +8,35 @@ import { toast } from "sonner";
 import { createDormAction } from "@/app/action/dorm";
 import { FormError } from "@/components/ui/FormError";
 import { RoomManagement } from "./RoomManageMent";
-import { PriceRangeCard } from "./PriceRangeCard";
-import { DormInfoFields } from "./DormInFoDetail";
+// ลบ import PriceRangeCard ออกได้เลยครับ
+import { DormInfoFields } from "./DormInfoDetail";
 import { RoomGenerator } from "./RoomGenerator";
 
-// --- Import Sub-components ---
 export function DormForm() {
     const router = useRouter();
     const [isPending, setIsPending] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const [showGenerator, setShowGenerator] = useState(false); // 👈 เพิ่ม State เพื่อเปิด/ปิด Generator
+    const [showGenerator, setShowGenerator] = useState(false);
 
-    // 🟢 State หลักสำหรับหอพัก
+    // 🟢 1. เอาฟิลด์ราคาออกจาก State เพราะเราจะไม่ให้ Admin กรอกเองแล้ว
     const [formData, setFormData] = useState({
         name: "",
         locationShort: "",
-        minPrice: "",
-        maxPrice: "",
-        basePrice: "",
         imageUrl: "",
         description: ""
     });
 
-    // 🟢 State สำหรับจัดการห้องพัก (Array)
     const [rooms, setRooms] = useState([
         { name: '', price: '', description: '' }
     ]);
 
     const handleBulkGenerate = (generatedRooms: any[]) => {
-        // นำห้องที่สร้างใหม่ไป "ต่อท้าย" หรือ "แทนที่" ห้องเดิมที่มีอยู่
         setRooms((prev) => {
-            // ถ้าห้องแรกว่างอยู่ ให้ลบทิ้งแล้วแทนที่เลย
             if (prev.length === 1 && prev[0].name === '') return generatedRooms;
             return [...prev, ...generatedRooms];
         });
         toast.success(`สร้างห้องพักจำนวน ${generatedRooms.length} ห้องสำเร็จ!`);
-        console.log(rooms);
-        setShowGenerator(false); // สร้างเสร็จแล้วปิดฟอร์มไป
+        setShowGenerator(false);
     };
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -59,6 +51,22 @@ export function DormForm() {
 
         const data = new FormData();
         Object.entries(formData).forEach(([key, value]) => data.append(key, value));
+
+        // 🟢 2. Logic คำนวณราคา Min / Max อัตโนมัติจากห้องพัก
+        // กรองเฉพาะห้องที่มีการกรอกราคาแล้ว และแปลงเป็นตัวเลข
+        const validPrices = rooms
+            .map(room => parseFloat(room.price))
+            .filter(price => !isNaN(price));
+
+        // ถ้ามีราคาห้องพักอย่างน้อย 1 ห้อง ให้หาค่าน้อยสุดและมากสุด
+        const calculatedMinPrice = validPrices.length > 0 ? Math.min(...validPrices) : 0;
+        const calculatedMaxPrice = validPrices.length > 0 ? Math.max(...validPrices) : 0;
+
+        // แนบค่าที่คำนวณได้ ส่งไปให้ Backend สบายๆ
+        data.append("minPrice", calculatedMinPrice.toString());
+        data.append("maxPrice", calculatedMaxPrice.toString());
+        data.append("basePrice", calculatedMinPrice.toString()); // ตั้งค่า Base Price ให้เท่ากับราคาเริ่มต้นไปเลย
+        
         data.append("rooms", JSON.stringify(rooms));
 
         const result = await createDormAction(data);
@@ -81,13 +89,8 @@ export function DormForm() {
             <div className="grid gap-6">
                 {/* 1. ส่วนข้อมูลหอพักพื้นฐาน */}
                 <DormInfoFields formData={formData} onChange={handleChange} />
-
-                {/* 2. ส่วนช่วงราคา (Grid) */}
-                <PriceRangeCard
-                    minPrice={formData.minPrice}
-                    maxPrice={formData.maxPrice}
-                    onChange={handleChange}
-                />
+                
+                {/* 🟢 3. ลบ Component PriceRangeCard ออกไปเลย UI จะได้คลีนๆ */}
             </div>
 
             <div className="space-y-4">
@@ -109,8 +112,8 @@ export function DormForm() {
                         <RoomGenerator
                             onGenerate={handleBulkGenerate}
                             initialConfig={{
-                                price: 6000,       // ตั้งค่าเริ่มต้นให้แพงหน่อย
-                                capacity: 2,       // หอนี้อยู่คู่
+                                price: 6000,
+                                capacity: 2,
                                 typeName: "ห้องแอร์พรีเมียม"
                             }} />
                     </div>

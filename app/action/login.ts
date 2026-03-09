@@ -59,7 +59,7 @@ export async function loginAction(formData: FormData) {
 
     } catch (error: any) {
         console.error("Login Error:", error);
-        return { error: "ระบบขัดข้อง กรุณาลองใหม่ภายหลัง" };
+        return { error: `ระบบขัดข้อง กรุณาลองใหม่ภายหลัง ${error}` };
     }
 
     redirect('/');
