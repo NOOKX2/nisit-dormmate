@@ -8,7 +8,6 @@ import { toast } from "sonner";
 import { createDormAction } from "@/app/action/dorm";
 import { FormError } from "@/components/ui/FormError";
 import { RoomManagement } from "./RoomManageMent";
-// ลบ import PriceRangeCard ออกได้เลยครับ
 import { DormInfoFields } from "./DormInfoDetail";
 import { RoomGenerator } from "./RoomGenerator";
 
@@ -18,7 +17,6 @@ export function DormForm() {
     const [error, setError] = useState<string | null>(null);
     const [showGenerator, setShowGenerator] = useState(false);
 
-    // 🟢 1. เอาฟิลด์ราคาออกจาก State เพราะเราจะไม่ให้ Admin กรอกเองแล้ว
     const [formData, setFormData] = useState({
         name: "",
         locationShort: "",

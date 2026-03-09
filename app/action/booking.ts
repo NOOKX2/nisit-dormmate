@@ -28,8 +28,6 @@ export async function processBookingAction(data: {
       const serviceFee = 300;
       const totalAmount = room.price + deposit + serviceFee;
 
-      console.log("process booking");
-
       // 3. สร้างใบจอง
       const booking = await tx.booking.create({
         data: {

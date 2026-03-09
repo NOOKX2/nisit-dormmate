@@ -34,7 +34,6 @@ export default function LoginPage() {
       setError(result.error);
       setIsPending(false); // ปิดสถานะโหลดเพื่อให้แก้ข้อมูลได้
     } else if (result?.success && result.user) {
-      console.log("Login success, updating context...");
       login(result.user);
 
       router.push('/');

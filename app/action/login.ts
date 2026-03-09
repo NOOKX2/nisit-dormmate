@@ -52,9 +52,7 @@ export async function loginAction(formData: FormData) {
             path: '/',
         });
         const { password: _, ...safeUser } = user;
-       
-        console.log(`User ${user.name} logged in and session created!`);
-        
+               
          return { success: true, user: safeUser };
 
     } catch (error: any) {

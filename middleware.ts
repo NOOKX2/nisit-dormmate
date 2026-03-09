@@ -10,7 +10,6 @@ export async function middleware(request: NextRequest) {
     
     // 1. ดึง token จาก cookie ที่คุณตั้งชื่อว่า 'auth_token'
     const token = request.cookies.get('auth_token')?.value;
-    console.log(`token ${token}`);
 
     if (!token) {
         // ถ้าไม่มี token และพยายามเข้าหน้า admin ให้ดีดกลับหน้าแรก
@@ -23,7 +22,6 @@ export async function middleware(request: NextRequest) {
     try {
         // 2. ถอดรหัส JWT
         const { payload } = await jwtVerify(token, SECRET);
-        console.log(`payload ${payload.role}`);
         
         // 3. เช็ก Role (คุณต้องอย่าลืมใส่ role ลงใน Payload ตอน Login ด้วยนะครับ!)
         const role = payload.role as string;

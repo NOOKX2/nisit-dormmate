@@ -8,7 +8,6 @@ export function calculateMatchScore(user1: User, user2: User): number {
 
   // 🟢 1. Smoking (Deal Breaker - 30%)
   // ใช้ || "" เพื่อป้องกัน null และให้เปรียบเทียบเป็น String
-  console.log('smoking', user1.smoking, user2.smoking);
   if ((user1.smoking || "") === (user2.smoking || "")) {
     score += 30;
   }
