@@ -1,4 +1,4 @@
-import { Building, MapPin, Bath, Image as ImageIcon } from "lucide-react";
+import { Building, MapPin, Image as ImageIcon } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 
