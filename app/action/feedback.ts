@@ -1,6 +1,7 @@
 "use server";
 
 import { getAuthUser } from "@/lib/auth";
+import { error } from "console";
 
 export async function sendFeedbackAction(formData: FormData) {
     try {
@@ -16,7 +17,7 @@ export async function sendFeedbackAction(formData: FormData) {
         // 🟢 ดึง Group ID ที่เราได้มาจากไฟล์ .env
         const groupId = process.env.LINE_GROUP_ID;
 
-        if (!accessToken || !groupId) return { error: "ระบบหลังบ้านตั้งค่า LINE ไม่ครบถ้วน" };
+        if (!accessToken || !groupId) return { error: `ระบบหลังบ้านตั้งค่า LINE ไม่ครบถ้วน ${error}` };
         
         // 🟢 จัดรูปแบบข้อความ และใส่เป้าหมาย (to) ว่าจะส่งไปที่กลุ่มไหน
         const payload = {
