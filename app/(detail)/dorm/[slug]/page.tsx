@@ -43,7 +43,10 @@ export default async function DormDetailPage({ params }: PageProps) {
         {/* Header Section */}
         <div className="bg-white p-6 rounded-2xl shadow-sm mb-6">
           <DormTitleInfo dorm={dorm} />
-          <UtilityInfo electricRate="8" waterRate="18" />
+          <UtilityInfo 
+            electricRate={dorm.electricRate ?? 0} 
+            waterRate={dorm.waterRate ?? 0} 
+          />
 
           {/* Sub Scores (ดึงค่าจาก DB fields ที่เรามี) */}
           <div className="grid grid-cols-3 gap-4 border-t border-gray-100 pt-4 mt-4">

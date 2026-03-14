@@ -1,11 +1,11 @@
 import { Zap, Droplets } from 'lucide-react';
 
 interface UtilityInfoProps {
-  electricRate?: string; // "8"
-  waterRate?: string; // "18"
+  electricRate: number; 
+  waterRate: number;
 }
 
-export function UtilityInfo({ electricRate = "8", waterRate = "18" }: UtilityInfoProps) {
+export function UtilityInfo({ electricRate , waterRate }: UtilityInfoProps) {
   return (
     <div className="border-t border-gray-100 pt-4 mt-4">
       <div className="flex items-center justify-between gap-2 mb-3">

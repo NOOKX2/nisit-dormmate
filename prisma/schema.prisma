@@ -58,6 +58,14 @@ model Dorm {
   rating        Float           @default(0)
   reviewCount   Int             @default(0)
 
+  // ค่าใช้จ่ายเพิ่มเติม (Utility & Common fee)
+  electricRate  Int     @default(0)         // ค่าไฟ บาท/หน่วย
+  waterRate     Int     @default(0)        // ค่าน้ำ บาท/หน่วย
+  commonFee     Int     @default(0)       // ค่าส่วนกลาง บาท/เดือน
+
+  // สิ่งอำนวยความสะดวก (เก็บเป็น Array ของ key)
+  amenities     String[]        @default([])
+
   // คะแนนย่อย (Scores)
   wifiScore     Float?
   securityScore Float?

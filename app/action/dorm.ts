@@ -7,9 +7,9 @@ import { revalidatePath } from "next/cache";
 function generateSlug(text: string) {
   return text
     .toLowerCase()
-    .replace(/[^\u0E00-\u0E7Fa-zA-Z0-9\s]/g, '') // เอาอักขระพิเศษออก (รองรับภาษาไทย)
-    .replace(/\s+/g, '-')                      // เปลี่ยนช่องว่างเป็น -
-    .replace(/-+/g, '-')                       // กันไม่ให้มี -- ติดกัน
+    .replace(/[^\u0E00-\u0E7Fa-zA-Z0-9\s]/g, '') 
+    .replace(/\s+/g, '-')                      
+    .replace(/-+/g, '-')                      
     .trim();
 }
 
@@ -19,17 +19,38 @@ export async function createDormAction(formData: FormData) {
     const imageUrl = formData.get("imageUrl") as string;
     const description = formData.get("description") as string;
 
+    // ฟิลด์ค่าใช้จ่ายเพิ่มเติม
+    const electricRateRaw = formData.get("electricRate") as string | null;
+    const waterRateRaw = formData.get("waterRate") as string | null;
+    const commonFeeRaw = formData.get("commonFee") as string | null;
+
+    const electricRate = electricRateRaw ? parseInt(electricRateRaw) : null;
+    const waterRate = waterRateRaw ? parseInt(waterRateRaw) : null;
+    const commonFee = commonFeeRaw ? parseInt(commonFeeRaw) : null;
+
     const minPrice = parseInt(formData.get("minPrice") as string) || 0;
     const maxPrice = parseInt(formData.get("maxPrice") as string) || 0;
     const basePrice = parseInt(formData.get("basePrice") as string) || 0;
 
     const roomsRaw = formData.get("rooms") as string;
+    const amenitiesRaw = formData.get("amenities") as string;
     let roomsData = [];
+    let amenities: string[] = [];
 
     try {
         roomsData = JSON.parse(roomsRaw);
     } catch (e) {
         console.error("Parse rooms error:", e);
+    }
+
+    try {
+        amenities = amenitiesRaw ? JSON.parse(amenitiesRaw) : [];
+        if (!Array.isArray(amenities)) {
+            amenities = [];
+        }
+    } catch (e) {
+        console.error("Parse amenities error:", e);
+        amenities = [];
     }
 
     if (!name || !locationShort) {
@@ -40,22 +61,28 @@ export async function createDormAction(formData: FormData) {
 
     try {
         const newDorm = await prisma.$transaction(async (tx) => {
-            const dorm = await tx.dorm.create({
-                data: {
-                    name,
-                    slug,
-                    locationShort,
-                    imageUrl: imageUrl || "/mock/dorm2.jpg", // ใส่รูป Default ถ้าไม่ได้ระบุ
-                    description,
-                    rating: 4.5, // ค่า Default สำหรับ Demo
-                    reviewCount: 1,
-                    priceRange: {
-                        create: {
-                            minPrice: minPrice,
-                            maxPrice: maxPrice,
-                        }
-                    },
+            const dormData: any = {
+                name,
+                slug,
+                locationShort,
+                imageUrl: imageUrl || "/mock/dorm2.jpg", // ใส่รูป Default ถ้าไม่ได้ระบุ
+                description,
+                electricRate: electricRate ?? undefined,
+                waterRate: waterRate ?? undefined,
+                commonFee: commonFee ?? undefined,
+                amenities,
+                rating: 4.5, // ค่า Default สำหรับ Demo
+                reviewCount: 1,
+                priceRange: {
+                    create: {
+                        minPrice: minPrice,
+                        maxPrice: maxPrice,
+                    }
                 },
+            };
+
+            const dorm = await tx.dorm.create({
+                data: dormData,
             });
 
            if (roomsData.length > 0) {

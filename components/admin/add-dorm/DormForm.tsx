@@ -10,6 +10,8 @@ import { FormError } from "@/components/ui/FormError";
 import { RoomManagement } from "./RoomManageMent";
 import { DormInfoFields } from "./DormInfoDetail";
 import { RoomGenerator } from "./RoomGenerator";
+import { DormUtilityFields } from "../DormUtilityFields";
+import { DormAmenitiesFields } from "../DormAmenitiesFields";
 
 export function DormForm() {
     const router = useRouter();
@@ -21,12 +23,17 @@ export function DormForm() {
         name: "",
         locationShort: "",
         imageUrl: "",
-        description: ""
+        description: "",
+        electricRate: "",
+        waterRate: "",
+        commonFee: "",
     });
 
     const [rooms, setRooms] = useState([
         { name: '', price: '', description: '' }
     ]);
+
+    const [amenities, setAmenities] = useState<string[]>([]);
 
     const handleBulkGenerate = (generatedRooms: any[]) => {
         setRooms((prev) => {
@@ -66,6 +73,7 @@ export function DormForm() {
         data.append("basePrice", calculatedMinPrice.toString()); // ตั้งค่า Base Price ให้เท่ากับราคาเริ่มต้นไปเลย
         
         data.append("rooms", JSON.stringify(rooms));
+        data.append("amenities", JSON.stringify(amenities));
 
         const result = await createDormAction(data);
 
@@ -87,7 +95,18 @@ export function DormForm() {
             <div className="grid gap-6">
                 {/* 1. ส่วนข้อมูลหอพักพื้นฐาน */}
                 <DormInfoFields formData={formData} onChange={handleChange} />
-                
+
+                <DormUtilityFields
+                    formData={{
+                        electricRate: formData.electricRate,
+                        waterRate: formData.waterRate,
+                        commonFee: formData.commonFee,
+                    }}
+                    onChange={handleChange}
+                />
+
+                <DormAmenitiesFields value={amenities} onChange={setAmenities} />
+
                 {/* 🟢 3. ลบ Component PriceRangeCard ออกไปเลย UI จะได้คลีนๆ */}
             </div>
 

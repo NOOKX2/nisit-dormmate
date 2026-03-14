@@ -1,7 +1,6 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { MapPin, Star, Wifi, Shield, Car, CheckCircle2 } from 'lucide-react';
-import { Badge } from '@/components/ui/badge'; 
 import { Dorm, DormPriceRange } from '@prisma/client';
 import { checkUserBookingStatus } from '@/app/action/dorm';
 
