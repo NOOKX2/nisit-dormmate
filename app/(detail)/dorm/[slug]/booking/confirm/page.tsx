@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, use } from "react";
-import { ChevronLeft, Info, Loader2 } from "lucide-react";
+import { ChevronLeft, CloudCog, Info, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -30,7 +30,6 @@ export default function BookingConfirmPage({ searchParams }: PageProps) {
     const [paymentMethod, setPaymentMethod] = useState<"bank" | "qr">("qr");
 
     useEffect(() => {
-        console.log("fetching data");
         async function init() {
             if (!params.roomId) {
                 toast.error("ข้อมูลห้องพักไม่ถูกต้อง");
@@ -49,7 +48,6 @@ export default function BookingConfirmPage({ searchParams }: PageProps) {
 
     // 🟢 1. ถอดพารามิเตอร์ e (Event) ออกไปเลย เพราะเราไม่ใช้ Form แล้ว
     const handleConfirm = async () => {
-        console.log("🚨🚨 ผีหลอก! ฟังก์ชัน handleConfirm โดนเรียกทำงาน!");
         if (!user) {
             toast.error("กรุณาเข้าสู่ระบบก่อนทำรายการ");
             setError('ไม่พบผู้ใช้งาน');
@@ -63,7 +61,7 @@ export default function BookingConfirmPage({ searchParams }: PageProps) {
                 userId: user.id,
                 roomId: roomInfo.roomId,
                 dormId: roomInfo.dormId,
-                customerName: params.contactName || user.name || "ไม่ระบุชื่อ",
+                customerName: params.contactName || `${user.firstName} ${user.lastName}` || "ไม่ระบุชื่อ",
                 customerPhone: params.phone || "ไม่ระบุเบอร์",
             });
 
@@ -90,13 +88,7 @@ export default function BookingConfirmPage({ searchParams }: PageProps) {
 
     const deposit = roomInfo.price * 2;
     const total = roomInfo.price + deposit + roomInfo.serviceFee;
-    const utilityRates = {
-        electricRate: "8",
-        waterRate: "18",
-        waterMinimum: 100,
-    };
 
-    // 🟢 2. เอา <form> ที่ครอบด้านนอกสุดทิ้งไป เหลือแค่ <div>
     return (
         <div className="min-h-screen bg-gray-50 pb-32 font-sans antialiased">
             <header className="bg-white p-4 flex items-center border-b sticky top-0 z-20">
@@ -118,7 +110,7 @@ export default function BookingConfirmPage({ searchParams }: PageProps) {
 
                 {/* 👤 ส่วนที่เพิ่มใหม่: ข้อมูลผู้ใช้งาน/ผู้ติดต่อ */}
                 <ContactInfo
-                    name={params.contactName || user?.name}
+                    name={params.contactName || (user ? `${user.firstName} ${user.lastName}` : "")}
                     phone={params.phone}
                     moveInDate={params.moveInDate}
                 />
@@ -127,9 +119,16 @@ export default function BookingConfirmPage({ searchParams }: PageProps) {
                     price={roomInfo.price}
                     deposit={deposit}
                     serviceFee={roomInfo.serviceFee}
-                    electricRate={utilityRates.electricRate}
-                    waterRate={utilityRates.waterRate}
-                    waterMinimum={utilityRates.waterMinimum}
+
+                    // 🟢 ดึงค่าจริงจาก DB ถ้าเป็น 0 ให้ขึ้นว่า "ฟรี" ถ้าไม่มีให้โชว์ "-"
+                    electricRate={
+                        roomInfo.dorm.electricRate
+                    }
+                    waterRate={
+                        roomInfo.dorm.waterRate
+                    }
+                    // (สมมติว่าขั้นต่ำตั้งไว้ 100 ถ้าใน DB มีฟิลด์นี้ก็ดึงมาใส่แทนได้ครับ)
+                    waterMinimum={100}
                 />
 
                 <PaymentSelector

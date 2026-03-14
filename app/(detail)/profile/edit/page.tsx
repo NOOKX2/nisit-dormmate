@@ -64,7 +64,7 @@ export default async function EditProfilePage() {
             <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">ชื่อ-นามสกุล</label>
             <input 
               name="name" 
-              defaultValue={user.name} 
+              defaultValue={`${user.firstName} ${user.lastName}`} 
               className="w-full mt-1 p-4 bg-gray-50 rounded-2xl border-none focus:ring-2 focus:ring-emerald-500 transition-all font-medium text-sm"
               required 
             />

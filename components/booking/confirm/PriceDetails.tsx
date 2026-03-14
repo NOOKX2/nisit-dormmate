@@ -14,10 +14,10 @@ const formatTHB = (amount: number) => `฿${amount.toLocaleString("th-TH")}`;
 export const PriceDetails = ({
   price,
   deposit,
-  serviceFee = 0,
-  electricRate = "8",
-  waterRate = "18",
-  waterMinimum = 100,
+  serviceFee=0,
+  electricRate,
+  waterRate,
+  waterMinimum ,
 }: PriceProps) => {
   const day1Total = price + deposit + serviceFee;
 

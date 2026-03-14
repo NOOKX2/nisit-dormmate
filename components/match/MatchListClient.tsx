@@ -32,7 +32,9 @@ export default function MatchListClient({ initialMatches, currentUser }: { initi
             {/* ข้อมูล */}
             <div className="flex-1">
               <div className="mb-6">
-                <h2 className="text-2xl font-black text-gray-900">{user.name}</h2>
+                <h2 className="text-2xl font-black text-gray-900">
+                  {`${user.firstName} ${user.lastName}`}
+                </h2>
                 <p className="text-emerald-600 text-sm font-bold flex items-center gap-2">
                    <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span>
                    {user.faculty || 'นิสิตมหาวิทยาลัย'}

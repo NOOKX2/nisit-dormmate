@@ -12,10 +12,15 @@ export async function updateUserProfile(userId: string, formData: FormData) {
   const sleepHabit = formData.get("sleepHabit") as string;
   const smoking = formData.get("smoking") === "true";
 
+  // แยก full name ที่กรอกมาเป็น firstName / lastName แบบง่ายๆ
+  const [firstName = "", ...restName] = (name || "").trim().split(" ");
+  const lastName = restName.join(" ");
+
   await prisma.user.update({
     where: { id: userId },
     data: {
-      name,
+      firstName,
+      lastName,
       faculty,
       year,
       cleanliness,

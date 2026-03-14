@@ -36,7 +36,7 @@ export default async function Navbar() {
           {user ? (
             // ✅ กรณี Login แล้ว: แสดงชื่อและปุ่ม Logout
             <UserDropdown 
-              name={user.name} 
+              name={`${user.firstName} ${user.lastName}`} 
               onClick={logoutAction} 
             />
           ) : (

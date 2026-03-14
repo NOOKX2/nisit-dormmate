@@ -68,7 +68,10 @@ export default async function DormDetailPage({ params }: PageProps) {
           </div>
         </div>
 
-        <AmenitiesSection />
+        <AmenitiesSection 
+          indoorAmenities={(dorm as any).indoorAmenities ?? []}
+          commonAmenities={(dorm as any).commonAmenities ?? []}
+        />
 
         {/* Reviews Section (ส่วนนี้ยัง Mock ไว้ก่อนได้ครับจนกว่าจะมีตาราง Review) */}
         <div className="bg-white p-6 rounded-2xl shadow-sm mb-24">

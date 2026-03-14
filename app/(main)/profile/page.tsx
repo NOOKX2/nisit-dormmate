@@ -38,7 +38,7 @@ export default async function ProfilePage() {
             <div className="max-w-md mx-auto px-6 -mt-16 space-y-6">
                 {/* Profile Main Info Card */}
                 <div className="bg-white rounded-[2.5rem] p-8 shadow-sm border border-gray-100 flex flex-col items-center">
-                    <ProfileHeader name={user.name} email={user.email} />
+                    <ProfileHeader name={`${user.firstName} ${user.lastName}`} email={user.email} />
                     <ProfileStats faculty={user.faculty} year={user.year} />
                 </div>
 

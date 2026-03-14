@@ -53,6 +53,36 @@ export async function createDormAction(formData: FormData) {
         amenities = [];
     }
 
+    // แยก amenities จากฟอร์มให้เป็น ภายในห้อง / ส่วนกลาง ตาม key
+    const INDOOR_AMENITY_KEYS = [
+        "aircon",
+        "waterHeater",
+        "furniture",
+        "fridge",
+        "tv",
+        "sink",
+        "balcony",
+    ];
+
+    const COMMON_AMENITY_KEYS = [
+        "elevator",
+        "security",
+        "washingMachine",
+        "wifi",
+        "fitness",
+        "pool",
+        "carParking",
+        "motorcycleParking",
+        "coworking",
+    ];
+
+    const indoorAmenities = amenities.filter((id) =>
+        INDOOR_AMENITY_KEYS.includes(id)
+    );
+    const commonAmenities = amenities.filter((id) =>
+        COMMON_AMENITY_KEYS.includes(id)
+    );
+
     if (!name || !locationShort) {
         return { error: "กรุณากรอกข้อมูลที่จำเป็น (ชื่อและที่ตั้ง) ให้ครบถ้วน" };
     }
@@ -70,7 +100,8 @@ export async function createDormAction(formData: FormData) {
                 electricRate: electricRate ?? undefined,
                 waterRate: waterRate ?? undefined,
                 commonFee: commonFee ?? undefined,
-                amenities,
+                indoorAmenities,
+                commonAmenities,
                 rating: 4.5, // ค่า Default สำหรับ Demo
                 reviewCount: 1,
                 priceRange: {
@@ -187,7 +218,7 @@ export async function getDormBySlug(slug: string) {
         // มั่นใจว่า floor ถูกส่งออกไปใช้งานที่ Frontend ด้วย
         floor: room.floor, 
         existingRoommate: roommateUser ? {
-          name: roommateUser.name,
+          name: `${roommateUser.firstName} ${roommateUser.lastName}`,
           major: roommateUser.faculty || "นิสิต",
           matchPercent: 85, 
         } : null,

@@ -32,10 +32,12 @@ export async function loginAction(formData: FormData) {
             return { error: "อีเมลหรือรหัสผ่านไม่ถูกต้อง" };
         }
 
+        const fullName = `${user.firstName} ${user.lastName}`;
+
         const token = await new SignJWT({
             userId: user.id,
             email: user.email,
-            name: user.name,
+            name: fullName,
             role: user.role,
         })
             .setProtectedHeader({ alg: 'HS256' })

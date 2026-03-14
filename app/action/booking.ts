@@ -87,6 +87,7 @@ export async function getRoomDetails(roomId: string) {
       roomType: room.name, // เช่น "ห้องแอร์ เตียงคู่"
       price: room.price,
       serviceFee: 300, // ค่าธรรมเนียมระบบ (Hardcode หรือดึงจาก DB ก็ได้)
+      dorm: room.dorm,
     };
   } catch (error: any) {
     console.error("Fetch error:", error);

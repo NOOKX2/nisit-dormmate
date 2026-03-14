@@ -53,7 +53,7 @@ export default function DormBookingPage() {
                     setCurrentUser(userData);
                     setFormData(prev => ({
                         ...prev,
-                        contactName: userData.name || ""
+                        contactName: `${userData.firstName} ${userData.lastName}` || ""
                     }));
                 }
             } catch (err) {
@@ -143,7 +143,7 @@ export default function DormBookingPage() {
                                 ...room,
                                 floor: room.floor,
                                 existingRoommate: roommateUser ? {
-                                    name: roommateUser.name,
+                                    name: `${roommateUser.firstName} ${roommateUser.lastName}`,
                                     major: roommateUser.faculty || "นิสิต",
                                     matchPercent: calculatedPercent // 👈 เอาค่าที่คำนวณได้ ยัดใส่ตรงนี้
                                 } : null

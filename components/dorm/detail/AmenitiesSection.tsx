@@ -1,4 +1,5 @@
 import { Badge } from '@/components/ui/badge';
+import { getAmenityLabel } from '@/config/dorm';
 
 interface AmenitiesSectionProps {
   indoorAmenities?: string[];
@@ -6,8 +7,8 @@ interface AmenitiesSectionProps {
 }
 
 export function AmenitiesSection({
-  indoorAmenities = ['แอร์', 'เครื่องทำน้ำอุ่น', 'ตู้เย็น', 'เตียง 5 ฟุต'],
-  commonAmenities = ['Wi‑Fi', 'กล้องวงจรปิด', 'ที่จอดรถ'],
+  indoorAmenities = [],
+  commonAmenities = [],
 }: AmenitiesSectionProps) {
   return (
     <div className="bg-white p-6 rounded-2xl shadow-sm mb-6">
@@ -42,7 +43,7 @@ function AmenityGroup({ title, items }: { title: string; items: string[] }) {
       <div className="flex flex-wrap gap-2">
         {items.map((item) => (
           <Badge key={item} variant="secondary" className="bg-gray-50 text-gray-700 border border-gray-100">
-            {item}
+            {getAmenityLabel(item)}
           </Badge>
         ))}
       </div>

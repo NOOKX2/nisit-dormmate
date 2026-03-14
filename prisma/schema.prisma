@@ -1,5 +1,5 @@
 generator client {
-  provider = "prisma-client-js"
+   provider = "prisma-client-js" 
 }
 
 datasource db {
@@ -15,7 +15,11 @@ enum Role {
 // 🌟 ข้อมูลผู้ใช้งาน (นิสิต)
 model User {
   id               String    @id @default(cuid())
-  name             String
+
+  firstName        String
+  lastName         String
+  nickName         String
+
   email            String    @unique
   password         String?
   image            String?
@@ -64,7 +68,8 @@ model Dorm {
   commonFee     Int     @default(0)       // ค่าส่วนกลาง บาท/เดือน
 
   // สิ่งอำนวยความสะดวก (เก็บเป็น Array ของ key)
-  amenities     String[]        @default([])
+  indoorAmenities String[]      @default([]) // ภายในห้อง
+  commonAmenities String[]      @default([]) // ส่วนกลาง
 
   // คะแนนย่อย (Scores)
   wifiScore     Float?
