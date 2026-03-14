@@ -11,13 +11,20 @@ export const PaymentSelector = ({ method, setMethod }: PaymentProps) => (
     <div className="grid grid-cols-2 gap-3 mb-4">
       <PaymentOption 
         active={method === 'qr'} 
-        onClick={() => setMethod('qr')}
+        onClick={(e: React.MouseEvent) => {
+          console.log("👉 กดเลือก QR Code");
+          e.preventDefault(); 
+          setMethod('qr');
+        }}
         icon={<QrCode size={24} />}
         label="QR PromptPay"
       />
       <PaymentOption 
         active={method === 'bank'} 
-        onClick={() => setMethod('bank')}
+        onClick={(e: React.MouseEvent) => {
+          e.preventDefault(); 
+          setMethod('bank');
+        }}
         icon={<CreditCard size={24} />}
         label="โอนผ่านธนาคาร"
       />
@@ -31,6 +38,7 @@ export const PaymentSelector = ({ method, setMethod }: PaymentProps) => (
 
 const PaymentOption = ({ active, onClick, icon, label }: any) => (
   <button 
+    type="button"
     onClick={onClick}
     className={`p-3 rounded-xl border-2 flex flex-col items-center gap-2 transition-all ${active ? 'border-emerald-500 bg-emerald-50' : 'border-gray-100'}`}
   >

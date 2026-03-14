@@ -3,6 +3,7 @@ import Image from 'next/image';
 import { MapPin, Star, Wifi, Shield, Car, CheckCircle2 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge'; 
 import { Dorm, DormPriceRange } from '@prisma/client';
+import { checkUserBookingStatus } from '@/app/action/dorm';
 
 // 🟢 รวม Type ระหว่าง Dorm และ PriceRange
 type DormWithPrice = Dorm & {
@@ -20,7 +21,7 @@ const facilityIcons: { [key: string]: React.ReactNode } = {
   parking: <Car size={14} />,
 };
 
-export function DormCard({ dorm }: DormCardProps) {
+export async function DormCard({ dorm }: DormCardProps) {
   // ฟอร์แมตตัวเลขให้มีคอมม่า (เช่น 5,500)
   const format = (num: number) => new Intl.NumberFormat('th-TH').format(num);
 
@@ -29,9 +30,15 @@ export function DormCard({ dorm }: DormCardProps) {
     ? `฿${format(dorm.priceRange.minPrice)} - ${format(dorm.priceRange.maxPrice)}`
     : "ยังไม่ระบุราคา";
 
+  const hasBooked = await checkUserBookingStatus(dorm.id);
+
   return (
     <Link href={`/dorm/${dorm.slug}`} className="block group">
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-all flex flex-col md:flex-row">
+      <div
+        className={`bg-white rounded-2xl shadow-sm border overflow-hidden hover:shadow-md transition-all flex flex-col md:flex-row ${
+          hasBooked ? 'border-emerald-200 ring-1 ring-emerald-100/60' : 'border-gray-100'
+        }`}
+      >
         
         {/* 🖼️ Image Section */}
         <div className="relative w-full md:w-1/3 h-48 md:h-auto bg-gray-100 shrink-0">
@@ -56,6 +63,7 @@ export function DormCard({ dorm }: DormCardProps) {
               <CheckCircle2 size={14} fill="currentColor" className="text-emerald-100" /> Verified
             </div>
           )}
+
         </div>
 
         {/* 📝 Content Section */}
@@ -79,10 +87,18 @@ export function DormCard({ dorm }: DormCardProps) {
           </div>
 
           {/* ⭐ Rating & Reviews */}
-          <div className="flex items-center gap-1 text-sm mb-4">
-            <Star size={16} className="text-yellow-400" fill="currentColor" /> 
-            <span className="font-bold">{dorm.rating.toFixed(1)}</span>
-            <span className="text-gray-400">({dorm.reviewCount} รีวิว)</span>
+          <div className="flex flex-wrap items-center gap-2 text-sm mb-4">
+            <div className="flex items-center gap-1">
+              <Star size={16} className="text-yellow-400" fill="currentColor" /> 
+              <span className="font-bold">{dorm.rating.toFixed(1)}</span>
+              <span className="text-gray-400">({dorm.reviewCount} รีวิว)</span>
+            </div>
+
+            {hasBooked && (
+              <span className="inline-flex items-center rounded-full bg-emerald-50 text-emerald-700 text-[11px] font-semibold px-2 py-0.5 border border-emerald-100">
+                จองเรียบร้อยแล้ว
+              </span>
+            )}
           </div>
 
           {/* 🏷️ Tags & Facilities */}

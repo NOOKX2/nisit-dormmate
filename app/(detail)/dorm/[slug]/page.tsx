@@ -1,10 +1,12 @@
 import { DormHeroImage } from '@/components/dorm/detail/DormHeroImage';
+import { AmenitiesSection } from '@/components/dorm/detail/AmenitiesSection';
+import { BookingFooter } from '@/components/dorm/detail/BookingFooter';
+import { DormTitleInfo } from '@/components/dorm/detail/DormTitleInfo';
+import { UtilityInfo } from '@/components/dorm/detail/UtilityInfo';
 import { ReviewCard } from '@/components/dorm/ReviewCard';
 import { ScoreItem } from '@/components/dorm/ScoreItem';
 import { BackButton } from '@/components/ui/BackButton';
-import { Button } from '@/components/ui/button';
-import { MapPin, Star, Wifi, Shield, Heart } from 'lucide-react';
-import Link from 'next/link';
+import { Wifi, Shield, Heart } from 'lucide-react';
 import { checkUserBookingStatus, getDormBySlug } from '@/app/action/dorm';
 import { notFound } from 'next/navigation';
 
@@ -26,13 +28,8 @@ export default async function DormDetailPage({ params }: PageProps) {
 
  const hasBooked = await checkUserBookingStatus(dorm.id);
 
-  // 3. เตรียมฟอร์แมตราคา (ดึงจาก Relation priceRange)
-  const formattedMinPrice = dorm.priceRange 
-    ? dorm.priceRange.minPrice.toLocaleString() 
-    : '0';
-
   return (
-    <div className="min-h-screen bg-gray-50 p-4 md:p-8 flex justify-center">
+    <div className="min-h-screen bg-gray-50 p-4 md:p-8 flex justify-center pb-28 md:pb-8">
       <div className="max-w-3xl w-full">
 
         <div className="relative">
@@ -45,28 +42,8 @@ export default async function DormDetailPage({ params }: PageProps) {
 
         {/* Header Section */}
         <div className="bg-white p-6 rounded-2xl shadow-sm mb-6">
-          <div className="flex justify-between items-start mb-4">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900 mb-1">
-                {dorm.name}
-              </h1>
-              <p className="text-sm text-gray-500 flex items-center gap-1 mb-2">
-                <MapPin size={14} /> 
-                {dorm.locationShort}
-              </p>
-              <div className="flex items-center gap-1 text-sm font-medium">
-                <Star size={16} className="text-yellow-400" fill="currentColor" /> 
-                {dorm.rating.toFixed(1)} 
-                <span className="text-gray-400 font-normal">({dorm.reviewCount} รีวิว)</span>
-              </div>
-            </div>
-            <div className="text-right">
-              <div className="text-2xl font-bold text-emerald-600">
-                ฿{formattedMinPrice}
-              </div>
-              <div className="text-sm text-gray-400">เริ่มต้น/เดือน</div>
-            </div>
-          </div>
+          <DormTitleInfo dorm={dorm} />
+          <UtilityInfo electricRate="8" waterRate="18" />
 
           {/* Sub Scores (ดึงค่าจาก DB fields ที่เรามี) */}
           <div className="grid grid-cols-3 gap-4 border-t border-gray-100 pt-4 mt-4">
@@ -88,6 +65,8 @@ export default async function DormDetailPage({ params }: PageProps) {
           </div>
         </div>
 
+        <AmenitiesSection />
+
         {/* Reviews Section (ส่วนนี้ยัง Mock ไว้ก่อนได้ครับจนกว่าจะมีตาราง Review) */}
         <div className="bg-white p-6 rounded-2xl shadow-sm mb-24">
           <h2 className="text-lg font-bold text-gray-900 mb-4">รีวิวจากผู้อยู่จริง</h2>
@@ -99,26 +78,7 @@ export default async function DormDetailPage({ params }: PageProps) {
         </div>
 
         {/* Sticky Bottom Button */}
-        <div className="fixed bottom-0 left-0 right-0 p-4 bg-white border-t border-gray-100 flex justify-center z-50">
-          <div className="max-w-3xl w-full">
-            {hasBooked ? (
-              /* 🔴 กรณีที่ User จองหอนี้ไปแล้ว */
-              <Button 
-                disabled 
-                className="py-6 w-full text-lg rounded-2xl bg-gray-200 text-gray-500 cursor-not-allowed shadow-none border-none"
-              >
-                จองหอพักเรียบร้อยแล้ว
-              </Button>
-            ) : (
-              /* 🟢 กรณีที่ User ยังไม่เคยจอง */
-              <Link href={`/dorm/${dorm.slug}/booking`} className="w-full">
-                <Button className="py-6 w-full text-lg rounded-2xl bg-gray-900 hover:bg-black text-white transition-all active:scale-[0.98]">
-                  จองหอพักนี้
-                </Button>
-              </Link>
-            )}
-          </div>
-        </div>
+        <BookingFooter hasBooked={hasBooked} dormSlug={dorm.slug} />
       </div>
     </div>
   );

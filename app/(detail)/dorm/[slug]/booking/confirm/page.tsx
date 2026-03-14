@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, use } from "react";
-import { ChevronLeft, Info, Loader2 } from "lucide-react"; // เพิ่ม Icon
+import { ChevronLeft, Info, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -30,6 +30,7 @@ export default function BookingConfirmPage({ searchParams }: PageProps) {
     const [paymentMethod, setPaymentMethod] = useState<"bank" | "qr">("qr");
 
     useEffect(() => {
+        console.log("fetching data");
         async function init() {
             if (!params.roomId) {
                 toast.error("ข้อมูลห้องพักไม่ถูกต้อง");
@@ -46,15 +47,14 @@ export default function BookingConfirmPage({ searchParams }: PageProps) {
         init();
     }, [params.roomId]);
 
-    const handleConfirm = async (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-
+    // 🟢 1. ถอดพารามิเตอร์ e (Event) ออกไปเลย เพราะเราไม่ใช้ Form แล้ว
+    const handleConfirm = async () => {
+        console.log("🚨🚨 ผีหลอก! ฟังก์ชัน handleConfirm โดนเรียกทำงาน!");
         if (!user) {
             toast.error("กรุณาเข้าสู่ระบบก่อนทำรายการ");
             setError('ไม่พบผู้ใช้งาน');
             return;
         }
-
 
         setIsSubmitting(true);
 
@@ -82,7 +82,6 @@ export default function BookingConfirmPage({ searchParams }: PageProps) {
         }
     };
 
-
     if (loading) return (
         <div className="flex h-screen items-center justify-center">
             <Loader2 className="animate-spin text-gray-400" size={32} />
@@ -91,74 +90,79 @@ export default function BookingConfirmPage({ searchParams }: PageProps) {
 
     const deposit = roomInfo.price * 2;
     const total = roomInfo.price + deposit + roomInfo.serviceFee;
+    const utilityRates = {
+        electricRate: "8",
+        waterRate: "18",
+        waterMinimum: 100,
+    };
 
+    // 🟢 2. เอา <form> ที่ครอบด้านนอกสุดทิ้งไป เหลือแค่ <div>
     return (
-        <form onSubmit={handleConfirm}>
-            <div className="min-h-screen bg-gray-50 pb-32 font-sans antialiased">
-                <header className="bg-white p-4 flex items-center border-b sticky top-0 z-20">
-                    <button onClick={() => router.back()} className="p-2 hover:bg-gray-100 rounded-full transition-all">
-                        <ChevronLeft size={24} />
-                    </button>
-                    <h1 className="text-lg font-bold ml-2">ยืนยันการจอง</h1>
-                </header>
+        <div className="min-h-screen bg-gray-50 pb-32 font-sans antialiased">
+            <header className="bg-white p-4 flex items-center border-b sticky top-0 z-20">
+                <button type="button" onClick={() => router.back()} className="p-2 hover:bg-gray-100 rounded-full transition-all">
+                    <ChevronLeft size={24} />
+                </button>
+                <h1 className="text-lg font-bold ml-2">ยืนยันการจอง</h1>
+            </header>
 
-                <main className="max-w-xl mx-auto p-4 space-y-4 text-gray-900">
+            <main className="max-w-xl mx-auto p-4 space-y-4 text-gray-900">
+                {/* 🏠 ข้อมูลหอพัก */}
+                <BookingSummary
+                    name={roomInfo.dormName}
+                    location={roomInfo.location}
+                    roomType={roomInfo.roomType}
+                    contract="1 ปี"
+                    startDate={params.moveInDate || "ระบุภายหลัง"}
+                />
 
-                    {/* 🏠 ข้อมูลหอพัก */}
-                    <BookingSummary
-                        name={roomInfo.dormName}
-                        location={roomInfo.location}
-                        roomType={roomInfo.roomType}
-                        contract="1 ปี"
-                        startDate={params.moveInDate || "ระบุภายหลัง"}
-                    />
+                {/* 👤 ส่วนที่เพิ่มใหม่: ข้อมูลผู้ใช้งาน/ผู้ติดต่อ */}
+                <ContactInfo
+                    name={params.contactName || user?.name}
+                    phone={params.phone}
+                    moveInDate={params.moveInDate}
+                />
 
-                    {/* 👤 ส่วนที่เพิ่มใหม่: ข้อมูลผู้ใช้งาน/ผู้ติดต่อ */}
-                   <ContactInfo
-                        name={params.contactName || user?.name}
-                        phone={params.phone}
-                        moveInDate={params.moveInDate}
-                    />
+                <PriceDetails
+                    price={roomInfo.price}
+                    deposit={deposit}
+                    serviceFee={roomInfo.serviceFee}
+                    electricRate={utilityRates.electricRate}
+                    waterRate={utilityRates.waterRate}
+                    waterMinimum={utilityRates.waterMinimum}
+                />
 
-                    <PriceDetails
-                        price={roomInfo.price}
-                        deposit={deposit}
-                        serviceFee={roomInfo.serviceFee}
-                    />
+                <PaymentSelector
+                    method={paymentMethod}
+                    setMethod={setPaymentMethod}
+                />
 
-                    <PaymentSelector
-                        method={paymentMethod}
-                        setMethod={setPaymentMethod}
-                    />
+                <footer className="flex items-start gap-2 p-2 text-[10px] text-gray-400 italic leading-relaxed">
+                    <Info size={14} className="shrink-0 text-emerald-500" />
+                    <p>กรุณาตรวจสอบข้อมูลชื่อและเบอร์โทรศัพท์ให้ถูกต้อง เพื่อให้เจ้าหน้าที่หอพักสามารถติดต่อท่านได้ในการทำสัญญา</p>
+                </footer>
+            </main>
 
-                    <footer className="flex items-start gap-2 p-2 text-[10px] text-gray-400 italic leading-relaxed">
-                        <Info size={14} className="shrink-0 text-emerald-500" />
-                        <p>กรุณาตรวจสอบข้อมูลชื่อและเบอร์โทรศัพท์ให้ถูกต้อง เพื่อให้เจ้าหน้าที่หอพักสามารถติดต่อท่านได้ในการทำสัญญา</p>
-                    </footer>
-                </main>
-
-                <div className="fixed bottom-0 left-0 right-0 p-4 bg-white/90 backdrop-blur-md border-t border-gray-100 flex flex-col items-center z-30 gap-3">
-
-                    {error && <FormError message={error} />}
-                    <div className="max-w-xl w-full">
-                     
-                            <Button
-                                type="submit"
-                                disabled={isSubmitting}
-                                className="w-full py-8 text-xl font-black rounded-[2rem] bg-gray-900 hover:bg-black shadow-xl transition-all active:scale-95 disabled:opacity-50"
-                            >
-                                {isSubmitting ? (
-                                    <span className="flex items-center gap-2">
-                                        <Loader2 className="animate-spin" size={20} /> กำลังล็อคห้องพัก...
-                                    </span>
-                                ) : (
-                                    `ชำระเงิน ฿${total.toLocaleString()}`
-                                )}
-                            </Button>
-                     
-                    </div>
+            <div className="fixed bottom-0 left-0 right-0 p-4 bg-white/90 backdrop-blur-md border-t border-gray-100 flex flex-col items-center z-30 gap-3">
+                {error && <FormError message={error} />}
+                <div className="max-w-xl w-full">
+                    {/* 🟢 3. เพิ่ม onClick และเปลี่ยน type="button" เพื่อไม่ให้มันเผลอไป Submit อะไรอีก */}
+                    <Button
+                        type="button"
+                        onClick={handleConfirm}
+                        disabled={isSubmitting}
+                        className="w-full py-8 text-xl font-black rounded-[2rem] bg-gray-900 hover:bg-black shadow-xl transition-all active:scale-95 disabled:opacity-50"
+                    >
+                        {isSubmitting ? (
+                            <span className="flex items-center gap-2">
+                                <Loader2 className="animate-spin" size={20} /> กำลังล็อคห้องพัก...
+                            </span>
+                        ) : (
+                            `ชำระเงิน ฿${total.toLocaleString()}`
+                        )}
+                    </Button>
                 </div>
             </div>
-        </form>
+        </div>
     );
 }
