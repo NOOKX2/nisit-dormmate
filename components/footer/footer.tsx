@@ -7,7 +7,7 @@ export async function Footer() {
   const user = await getAuthUser();
 
   return (
-    <footer className="w-full border-t border-gray-100 bg-white py-8 mt-12">
+    <footer className="w-full border border-gray-100 bg-white py-10 ">
       <div className="container mx-auto px-4 flex flex-col md:flex-row justify-between items-center text-sm text-gray-500">
         
         <p className="mb-4 md:mb-0">
