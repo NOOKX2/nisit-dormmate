@@ -261,6 +261,7 @@ export async function checkUserBookingStatus(dormId: string) {
   }
 }
 
+// app/action/dorm.ts
 export async function updateDormBaseInfo(dormId: string, data: {
   name: string;
   locationShort: string;
@@ -268,6 +269,9 @@ export async function updateDormBaseInfo(dormId: string, data: {
   electricRate: number;
   waterRate: number;
   commonFee: number;
+  // 🟢 1. รับค่า Array ของสิ่งอำนวยความสะดวกเพิ่มเข้ามา
+  indoorAmenities: string[]; 
+  commonAmenities: string[];
 }) {
   try {
     const updatedDorm = await prisma.dorm.update({
@@ -279,13 +283,14 @@ export async function updateDormBaseInfo(dormId: string, data: {
         electricRate: data.electricRate,
         waterRate: data.waterRate,
         commonFee: data.commonFee,
+        // 🟢 2. โยนลง Database
+        indoorAmenities: data.indoorAmenities,
+        commonAmenities: data.commonAmenities,
       },
     });
 
-    // รีเซ็ตแคชเพื่อให้หน้าเว็บเห็นข้อมูลใหม่ทันที
     revalidatePath("/admin");
     revalidatePath(`/admin/dorm/${updatedDorm.slug}`);
-    
     return { success: true, slug: updatedDorm.slug };
   } catch (error: any) {
     console.error("Update Dorm Error:", error);

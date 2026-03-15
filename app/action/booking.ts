@@ -66,35 +66,6 @@ export async function processBookingAction(data: {
   }
 }
 
-export async function getRoomDetails(roomId: string) {
-  try {
-    const room = await prisma.room.findUnique({
-      where: { id: roomId },
-      include: {
-        dorm: true, // ดึงข้อมูลหอพักที่ห้องนี้สังกัดอยู่มาด้วย
-      },
-    });
-
-    if (!room) {
-      return null;
-    }
-
-    return {
-      dormId: room.dorm.id,
-      roomId: room.id,
-      dormName: room.dorm.name,
-      location: room.dorm.locationShort,
-      roomType: room.name, // เช่น "ห้องแอร์ เตียงคู่"
-      price: room.price,
-      serviceFee: 300, // ค่าธรรมเนียมระบบ (Hardcode หรือดึงจาก DB ก็ได้)
-      dorm: room.dorm,
-    };
-  } catch (error: any) {
-    console.error("Fetch error:", error);
-    return { error: "ดึงข้อมูลการจองไม่สำเร็จ" };
-  }
-}
-
 export async function getBookingData(id: string) {
   try {
     const booking = await prisma.booking.findUnique({
@@ -110,7 +81,6 @@ export async function getBookingData(id: string) {
     return null;
   }
 }
-
 
 const SECRET = new TextEncoder().encode(process.env.JWT_SECRET);
 
@@ -139,3 +109,4 @@ export async function getUserBookings() {
         return { error: "ไม่สามารถดึงข้อมูลได้" };
     }
 }
+

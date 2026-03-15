@@ -7,12 +7,13 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/context/AuthContext";
 
-import { processBookingAction, getRoomDetails } from "@/app/action/booking";
+import { processBookingAction } from "@/app/action/booking";
 import { BookingSummary } from "@/components/booking/confirm/BookingSummary";
 import { PaymentSelector } from "@/components/booking/confirm/PaymentSelector";
 import { PriceDetails } from "@/components/booking/confirm/PriceDetails";
 import { FormError } from "@/components/ui/FormError";
 import { ContactInfo } from "@/components/booking/confirm/ContactInfo";
+import { getRoomDetails } from "@/app/action/room";
 
 interface PageProps {
     searchParams: Promise<{ [key: string]: string | undefined }>;
