@@ -15,7 +15,7 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: 'https',
-        hostname: 'www.livinginsider.com', // 🟢 เพิ่มตัวนี้เข้าไปครับ
+        hostname: 'www.livinginsider.com', 
         pathname: '/**',
       },
       {
@@ -25,7 +25,7 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: 'https',
-        hostname: 'www.wonderfulpackage.com', // 🟢 เพิ่มตัวนี้เข้าไปครับ
+        hostname: 'www.wonderfulpackage.com', 
         pathname: '/**',
       },
     ],

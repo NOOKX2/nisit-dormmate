@@ -110,3 +110,15 @@ export async function getUserBookings() {
     }
 }
 
+export async function updateBookingStatus(bookingId: string, status: "PENDING" | "CONFIRMED" | "CANCELLED") {
+  try {
+    await prisma.booking.update({
+      where: { id: bookingId },
+      data: { status },
+    });
+    revalidatePath("/admin");
+    return { success: true };
+  } catch (error) {
+    return { error: "ไม่สามารถอัปเดตสถานะได้" };
+  }
+}
