@@ -260,3 +260,35 @@ export async function checkUserBookingStatus(dormId: string) {
     return false;
   }
 }
+
+export async function updateDormBaseInfo(dormId: string, data: {
+  name: string;
+  locationShort: string;
+  imageUrl?: string;
+  electricRate: number;
+  waterRate: number;
+  commonFee: number;
+}) {
+  try {
+    const updatedDorm = await prisma.dorm.update({
+      where: { id: dormId },
+      data: {
+        name: data.name,
+        locationShort: data.locationShort,
+        imageUrl: data.imageUrl,
+        electricRate: data.electricRate,
+        waterRate: data.waterRate,
+        commonFee: data.commonFee,
+      },
+    });
+
+    // รีเซ็ตแคชเพื่อให้หน้าเว็บเห็นข้อมูลใหม่ทันที
+    revalidatePath("/admin");
+    revalidatePath(`/admin/dorm/${updatedDorm.slug}`);
+    
+    return { success: true, slug: updatedDorm.slug };
+  } catch (error: any) {
+    console.error("Update Dorm Error:", error);
+    return { error: "ไม่สามารถอัปเดตข้อมูลได้ โปรดลองอีกครั้ง" };
+  }
+}

@@ -7,7 +7,7 @@ export async function sendFeedbackAction(formData: FormData) {
     try {
         const user = await getAuthUser();
         
-        const userName = user?.name || "บุคคลทั่วไป (ไม่ได้ล็อกอิน)";
+        const userName = [user?.firstName, user?.lastName].filter(Boolean).join(" ") || "บุคคลทั่วไป (ไม่ได้ล็อกอิน)";
         const userEmail = user?.email || "ไม่มีข้อมูลอีเมล";
 
         const message = formData.get("message") as string;
