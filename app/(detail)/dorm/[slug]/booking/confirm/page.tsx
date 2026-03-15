@@ -119,6 +119,7 @@ export default function BookingConfirmPage({ searchParams }: PageProps) {
                     price={roomInfo.price}
                     deposit={deposit}
                     serviceFee={roomInfo.serviceFee}
+                    commonFee={roomInfo.dorm?.commonFee ?? 0}
 
                     // 🟢 ดึงค่าจริงจาก DB ถ้าเป็น 0 ให้ขึ้นว่า "ฟรี" ถ้าไม่มีให้โชว์ "-"
                     electricRate={

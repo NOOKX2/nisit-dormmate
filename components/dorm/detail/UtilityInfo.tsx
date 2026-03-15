@@ -1,20 +1,29 @@
-import { Zap, Droplets } from 'lucide-react';
+import { Zap, Droplets, Building } from 'lucide-react';
 
 interface UtilityInfoProps {
   electricRate: number; 
   waterRate: number;
+  commonFee: number;
 }
 
-export function UtilityInfo({ electricRate , waterRate }: UtilityInfoProps) {
+export function UtilityInfo({ electricRate , waterRate, commonFee }: UtilityInfoProps) {
   return (
     <div className="border-t border-gray-100 pt-4 mt-4">
       <div className="flex items-center justify-between gap-2 mb-3">
         <h2 className="text-base font-bold text-gray-900">ค่าใช้จ่ายเพิ่มเติม</h2>
         <span className="text-xs text-gray-400">อ้างอิงเรทมาตรฐานของหอ</span>
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         <UtilityCard icon={<Zap size={18} />} label="ค่าไฟ" rate={`${electricRate} บ./หน่วย`} iconColorClassName="text-amber-500" />
         <UtilityCard icon={<Droplets size={18} />} label="ค่าน้ำ" rate={`${waterRate} บ./หน่วย (ขั้นต่ำ 100 บ.)`} iconColorClassName="text-sky-500" />
+        {commonFee > 0 && (
+          <UtilityCard 
+            icon={<Building size={18} />} 
+            label="ค่าส่วนกลาง" 
+            rate={`${commonFee.toLocaleString()} บ./เดือน`} 
+            iconColorClassName="text-indigo-500" 
+          />
+        )}
       </div>
     </div>
   );

@@ -46,6 +46,7 @@ export default async function DormDetailPage({ params }: PageProps) {
           <UtilityInfo 
             electricRate={dorm.electricRate ?? 0} 
             waterRate={dorm.waterRate ?? 0} 
+            commonFee={dorm.commonFee ?? 0}
           />
 
           {/* Sub Scores (ดึงค่าจาก DB fields ที่เรามี) */}

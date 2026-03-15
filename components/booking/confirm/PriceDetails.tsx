@@ -4,6 +4,7 @@ interface PriceProps {
   price: number; // ค่าเช่าล่วงหน้า 1 เดือน
   deposit: number; // ค่าประกันความเสียหาย
   serviceFee?: number;
+  commonFee?: number; // 🟢 1. เพิ่ม properties ค่าส่วนกลาง
   electricRate?: string; // เช่น "8"
   waterRate?: string; // เช่น "18"
   waterMinimum?: number; // เช่น 100
@@ -14,10 +15,11 @@ const formatTHB = (amount: number) => `฿${amount.toLocaleString("th-TH")}`;
 export const PriceDetails = ({
   price,
   deposit,
-  serviceFee=0,
+  serviceFee = 0,
+  commonFee = 0, // 🟢 2. รับค่าและตั้งค่าเริ่มต้นเป็น 0
   electricRate,
   waterRate,
-  waterMinimum ,
+  waterMinimum,
 }: PriceProps) => {
   const day1Total = price + deposit + serviceFee;
 
@@ -32,7 +34,7 @@ export const PriceDetails = ({
         <div className="space-y-2.5 text-sm">
           <Row label="ค่าเช่าล่วงหน้า 1 เดือน" value={formatTHB(price)} />
           <Row label="ค่าประกันความเสียหาย" value={formatTHB(deposit)} />
-          {serviceFee > 0 ? <Row label="ค่าส่วนกลาง/ค่าดำเนินการ" value={formatTHB(serviceFee)} /> : null}
+          {serviceFee > 0 ? <Row label="ค่าดำเนินการ (ชำระครั้งเดียว)" value={formatTHB(serviceFee)} /> : null}
 
           <div className="flex items-end justify-between border-t border-emerald-100 pt-3 mt-3">
             <div>
@@ -50,6 +52,11 @@ export const PriceDetails = ({
 
         <div className="space-y-3 text-sm">
           <Row label="ค่าเช่ารายเดือน" value={formatTHB(price)} />
+          
+          {/* 🟢 3. เพิ่มบรรทัดค่าส่วนกลาง โชว์เฉพาะหอที่มีการเก็บรายเดือน */}
+          {commonFee > 0 && (
+            <Row label="ค่าส่วนกลาง" value={formatTHB(commonFee)} />
+          )}
 
           <div className="rounded-xl border border-gray-100 bg-white p-3">
             <div className="flex items-center justify-between gap-3">
