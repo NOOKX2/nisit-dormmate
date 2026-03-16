@@ -1,8 +1,8 @@
-import { prisma } from "@/lib/db";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ChevronLeft } from "lucide-react";
 import { RoomManager } from "@/components/admin/dorm/rooms/RoomManager";
+import { getDormBySlug } from "@/app/action/dorm";
 
 interface PageProps {
     params: Promise<{ slug: string }>;
@@ -12,20 +12,7 @@ export default async function AdminRoomsManagePage({ params }: PageProps) {
     const resolvedParams = await params;
     const slug = decodeURIComponent(resolvedParams.slug);
 
-    // ดึงข้อมูลหอพัก พร้อมกับ "ห้องพักทั้งหมด" ของหอพักนี้
-    const dorm = await prisma.dorm.findUnique({
-        where: { slug: slug },
-        include: {
-            rooms: {
-                include: {
-                    bookings: {
-                        where: { status: "SUCCESS" } // สมมติว่าดึงเฉพาะคนที่กำลังเช่าอยู่
-                    }
-                },
-                orderBy: { price: 'asc' } 
-            },
-        },
-    });
+    const dorm = await getDormBySlug(slug);
 
     if (!dorm) {
         notFound();

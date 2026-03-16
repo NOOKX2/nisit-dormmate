@@ -1,26 +1,14 @@
-import { prisma } from "@/lib/db";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ChevronLeft } from "lucide-react";
 import { BookingList } from "@/components/admin/dorm/booking/BookingList";
+import { getDormBySlug } from "@/app/action/dorm";
 
 export default async function AdminDormBookingsPage({ params }: { params: Promise<{ slug: string }> }) {
   const resolvedParams = await params;
   const slug = decodeURIComponent(resolvedParams.slug);
 
-  const dorm = await prisma.dorm.findUnique({
-    where: { slug },
-    include: {
-      rooms: {
-        include: {
-          bookings: {
-            include: { user: true, room: true },
-            orderBy: { createdAt: "desc" }
-          }
-        }
-      }
-    }
-  });
+  const dorm = await getDormBySlug(slug);
 
   if (!dorm) notFound();
 

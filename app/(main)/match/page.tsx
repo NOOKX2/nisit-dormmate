@@ -1,5 +1,3 @@
-// app/match/page.tsx
-
 import { getAuthUser } from '@/lib/auth'
 import { getPotentialMatches } from '../../action/matching';
 import MatchListClient from '@/components/match/MatchListClient';

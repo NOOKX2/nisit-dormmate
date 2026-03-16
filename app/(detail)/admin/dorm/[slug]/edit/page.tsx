@@ -1,8 +1,8 @@
-import { prisma } from "@/lib/db";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ChevronLeft } from "lucide-react";
 import { EditDormForm } from "@/components/admin/dorm/edit/EditDormForm";
+import { getDormBySlug } from "@/app/action/dorm";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -13,9 +13,7 @@ export default async function AdminEditDormPage({ params }: PageProps) {
   const slug = decodeURIComponent(resolvedParams.slug);
   
   // ดึงข้อมูลหอพักเดิมเพื่อเอาไปใส่เป็นค่าเริ่มต้นในฟอร์ม
-  const dorm = await prisma.dorm.findUnique({
-    where: { slug: slug },
-  });
+  const dorm = await getDormBySlug(slug);
 
   if (!dorm) {
     notFound();

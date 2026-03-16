@@ -1,9 +1,12 @@
-import { prisma } from "@/lib/db";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { ChevronLeft, User, Phone, Mail, Calendar, Receipt, Download, ShieldCheck, MapPin } from "lucide-react";
+import { ChevronLeft, User, MapPin } from "lucide-react";
 import { StatusBadge } from "@/components/admin/dorm/booking/StatusBadge";
 import { DigitalReceipt } from "@/components/booking/success/DigitalReceipt";
+
+// 🟢 1. Import ฟังก์ชันดึงข้อมูล และ ปุ่ม Action
+import { getBookingData } from "@/app/action/booking";
+import { BookingActionButtons } from "@/components/admin/dorm/booking/BookingActionButtons";
 
 interface PageProps {
   params: Promise<{ slug: string; id: string }>;
@@ -11,17 +14,11 @@ interface PageProps {
 
 export default async function BookingDetailPage({ params }: PageProps) {
   const { slug, id } = await params;
+  
+  // 🟢 2. เรียกใช้ฟังก์ชันดึงข้อมูล (ที่พ่วง user และ room มาแล้ว)
+  const booking = await getBookingData(id);
 
-  const booking = await prisma.booking.findUnique({
-    where: { id: id },
-    include: {
-      user: true,
-      room: {
-        include: { dorm: true }
-      }
-    }
-  });
-
+  // ถ้าหาไม่เจอให้เด้งไปหน้า 404
   if (!booking) notFound();
 
   return (
@@ -57,7 +54,8 @@ export default async function BookingDetailPage({ params }: PageProps) {
               </div>
               <div className="space-y-1">
                 <p className="text-xs text-gray-400 uppercase font-bold">อีเมล</p>
-                <p className="font-semibold text-gray-800">{booking.user?.email}</p>
+                {/* 🟢 ดึงอีเมลจาก user relation ได้แล้ว */}
+                <p className="font-semibold text-gray-800">{booking.user?.email || "ไม่ระบุอีเมล"}</p>
               </div>
               <div className="space-y-1">
                 <p className="text-xs text-gray-400 uppercase font-bold">วันที่กดจอง</p>
@@ -78,32 +76,25 @@ export default async function BookingDetailPage({ params }: PageProps) {
               </div>
               <div className="text-right">
                 <p className="text-xs text-blue-600 uppercase font-bold">ราคาจอง/ประกัน</p>
-                <p className="text-2xl font-black text-blue-900">฿{booking.room?.price.toLocaleString()}</p>
+                <p className="text-2xl font-black text-blue-900">฿{booking.room?.price?.toLocaleString() || 0}</p>
               </div>
             </div>
           </div>
         </div>
 
-        {/* 📸 ฝั่งขวา: หลักฐานการโอน (สลิป) */}
+        {/* 📸 ฝั่งขวา: หลักฐานการโอน (สลิป) และปุ่มกด */}
         <div className="space-y-6">
-         <DigitalReceipt booking={booking} />
+          
+          {/* ใบเสร็จดิจิทัล */}
+          <DigitalReceipt booking={booking} />
 
-          {/* ⚡ Quick Actions (ถ้าสถานะยังเป็น PENDING) */}
+          {/* ⚡ Quick Actions (แสดงเฉพาะสถานะ PENDING) */}
+          {/* 🟢 เรียกใช้ Client Component ของเราตรงนี้ */}
           {booking.status === "PENDING" && (
-             <div className="bg-emerald-50 p-6 rounded-3xl border border-emerald-100 space-y-3">
-                <p className="text-sm font-bold text-emerald-800 flex items-center gap-2">
-                  <ShieldCheck size={18} /> ตรวจสอบข้อมูลเรียบร้อย?
-                </p>
-                <button className="w-full py-4 bg-emerald-600 text-white rounded-2xl font-bold shadow-lg shadow-emerald-200 hover:bg-emerald-700 transition-all">
-                  ยืนยันการจองนี้
-                </button>
-                <button className="w-full py-3 text-red-500 font-bold text-sm hover:text-red-700 transition-colors">
-                  ปฏิเสธ / แจ้งให้โอนใหม่
-                </button>
-             </div>
+            <BookingActionButtons bookingId={booking.id} />
           )}
-        </div>
 
+        </div>
       </div>
     </div>
   );

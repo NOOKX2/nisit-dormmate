@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ChevronLeft, Building, BedDouble, CalendarCheck, Edit, Trash2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge"; // ถ้าไม่มี ใช้ <span> ปรับ style เอาได้ครับ
+import { getDormBySlug } from "@/app/action/dorm";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -12,13 +13,7 @@ export default async function AdminDormManagePage({ params }: PageProps) {
   // 1. ดึง ID จาก params และ Query ข้อมูลหอพัก
   const resolvedParams = await params;
   const slug = decodeURIComponent(resolvedParams.slug);
-  const dorm = await prisma.dorm.findUnique({
-    where: { slug: slug},
-    include: {
-      rooms: true, 
-      // bookings: true, // ถ้ามีตารางการจอง ค่อยเปิดคอมเมนต์นี้ครับ
-    },
-  });
+  const dorm = await getDormBySlug(slug);
 
   if (!dorm) {
     notFound();

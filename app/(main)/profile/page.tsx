@@ -7,9 +7,6 @@ import ProfileStats from '@/components/profile/ProfileStats';
 import LifestyleCard from '@/components/profile/LifeStyleCard';
 import ActionMenu from '@/components/profile/ActionMenu';
 
-// Import Sub-components
-
-
 const SECRET = new TextEncoder().encode(process.env.JWT_SECRET || "");
 
 export default async function ProfilePage() {

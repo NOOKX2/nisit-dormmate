@@ -153,3 +153,21 @@ model DormPriceRange {
 
   updatedAt DateTime @updatedAt
 }
+
+
+model Post {
+  id          String   @id @default(cuid())
+  content     String   @db.Text
+  authorId    String   // ID ของคนโพสต์
+  authorName  String   // ชื่อคนโพสต์ (เก็บไว้เลยจะได้ไม่ต้อง Join ให้เหนื่อยใน Hackathon)
+  tag         String?  // เช่น "หาเมท", "รีวิวหอ", "เตือนภัย"
+  createdAt   DateTime @default(now())
+}
+
+model Message {
+  id         String   @id @default(cuid())
+  text       String   @db.Text   // ใช้ @db.Text เผื่อนิสิตพิมพ์ข้อความยาวๆ
+  senderId   String   // ID ของคนส่งข้อความ
+  receiverId String   // ID ของคนรับข้อความ
+  createdAt  DateTime @default(now())
+}
