@@ -10,8 +10,9 @@ import { FormError } from "@/components/ui/FormError";
 import { RoomManagement } from "./RoomManageMent";
 import { DormInfoFields } from "./DormInfoDetail";
 import { RoomGenerator } from "./RoomGenerator";
-import { DormUtilityFields } from "../DormUtilityFields";
-import { DormAmenitiesFields } from "../DormAmenitiesFields";
+import { DormUtilityFields } from "../dorm/DormUtilityFields";
+import { DormAmenitiesFields } from "../dorm/DormAmenitiesFields";
+import { MapPicker } from "./MapPicker";
 
 export function DormForm() {
     const router = useRouter();
@@ -22,11 +23,14 @@ export function DormForm() {
     const [formData, setFormData] = useState({
         name: "",
         locationShort: "",
+        address: "",
         imageUrl: "",
         description: "",
         electricRate: "",
         waterRate: "",
         commonFee: "",
+        lat: 13.84786,
+        lng: 100.56965,
     });
 
     const [rooms, setRooms] = useState([
@@ -55,23 +59,20 @@ export function DormForm() {
         setError(null);
 
         const data = new FormData();
-        Object.entries(formData).forEach(([key, value]) => data.append(key, value));
+        // 🟢 แปลง value เป็น String ก่อนยัดลง FormData ป้องกัน Error ตัวเลขพิกัด
+        Object.entries(formData).forEach(([key, value]) => data.append(key, String(value)));
 
-        // 🟢 2. Logic คำนวณราคา Min / Max อัตโนมัติจากห้องพัก
-        // กรองเฉพาะห้องที่มีการกรอกราคาแล้ว และแปลงเป็นตัวเลข
         const validPrices = rooms
             .map(room => parseFloat(room.price))
             .filter(price => !isNaN(price));
 
-        // ถ้ามีราคาห้องพักอย่างน้อย 1 ห้อง ให้หาค่าน้อยสุดและมากสุด
         const calculatedMinPrice = validPrices.length > 0 ? Math.min(...validPrices) : 0;
         const calculatedMaxPrice = validPrices.length > 0 ? Math.max(...validPrices) : 0;
 
-        // แนบค่าที่คำนวณได้ ส่งไปให้ Backend สบายๆ
         data.append("minPrice", calculatedMinPrice.toString());
         data.append("maxPrice", calculatedMaxPrice.toString());
-        data.append("basePrice", calculatedMinPrice.toString()); // ตั้งค่า Base Price ให้เท่ากับราคาเริ่มต้นไปเลย
-        
+        data.append("basePrice", calculatedMinPrice.toString());
+
         data.append("rooms", JSON.stringify(rooms));
         data.append("amenities", JSON.stringify(amenities));
 
@@ -96,6 +97,35 @@ export function DormForm() {
                 {/* 1. ส่วนข้อมูลหอพักพื้นฐาน */}
                 <DormInfoFields formData={formData} onChange={handleChange} />
 
+                {/* 2. ตำแหน่งที่ตั้งและแผนที่ */}
+                <div className="space-y-4 bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
+                    <h3 className="text-lg font-bold text-gray-800">ตำแหน่งที่ตั้งหอพัก</h3>
+
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">ที่อยู่แบบเต็ม (Address)</label>
+                        <input
+                            type="text"
+                            name="address"
+                            value={formData.address}
+                            onChange={handleChange}
+                            placeholder="เช่น 123 ซ.งามวงศ์วาน 52 เขตจตุจักร กรุงเทพฯ"
+                            className="w-full p-3 border border-gray-200 rounded-xl focus:border-emerald-500 focus:ring-emerald-500 transition-colors"
+                        />
+                    </div>
+
+                    <MapPicker
+                        lat={formData.lat}
+                        lng={formData.lng}
+                        onChange={(newLat, newLng) => {
+                            setFormData(prev => ({ ...prev, lat: newLat, lng: newLng }));
+                        }}
+                    />
+                </div>
+
+                {/* 3. สิ่งอำนวยความสะดวก */}
+                <DormAmenitiesFields value={amenities} onChange={setAmenities} />
+
+                {/* 4. ค่าใช้จ่ายเพิ่มเติม */}
                 <DormUtilityFields
                     formData={{
                         electricRate: formData.electricRate,
@@ -104,13 +134,9 @@ export function DormForm() {
                     }}
                     onChange={handleChange}
                 />
-
-                <DormAmenitiesFields value={amenities} onChange={setAmenities} />
-
-                {/* 🟢 3. ลบ Component PriceRangeCard ออกไปเลย UI จะได้คลีนๆ */}
             </div>
 
-            <div className="space-y-4">
+            <div className="space-y-4 pt-4 border-t border-gray-100">
                 <div className="flex justify-between items-center px-2">
                     <h3 className="text-lg font-bold text-gray-700">รายการห้องพัก</h3>
                     <Button
@@ -137,7 +163,7 @@ export function DormForm() {
                 )}
             </div>
 
-            {/* 3. ส่วนจัดการห้องพัก (Dynamic) */}
+            {/* ส่วนจัดการห้องพัก (Dynamic) */}
             <RoomManagement rooms={rooms} setRooms={setRooms} />
 
             {/* --- ปุ่ม Submit --- */}

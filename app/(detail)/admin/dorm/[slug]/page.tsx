@@ -4,6 +4,7 @@ import Link from "next/link";
 import { ChevronLeft, Building, BedDouble, CalendarCheck, Edit, Trash2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge"; // ถ้าไม่มี ใช้ <span> ปรับ style เอาได้ครับ
 import { getDormBySlug } from "@/app/action/dorm";
+import { DeleteDormButton } from "@/components/admin/dorm/DeleteDormButton";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -21,7 +22,7 @@ export default async function AdminDormManagePage({ params }: PageProps) {
 
   return (
     <div className="max-w-5xl mx-auto p-4 md:p-8 space-y-6">
-      
+
       {/* 🔙 Header & Back Button */}
       <div className="flex items-center gap-4 mb-8">
         <Link href="/admin" className="p-2 hover:bg-gray-100 rounded-full transition-colors">
@@ -38,9 +39,9 @@ export default async function AdminDormManagePage({ params }: PageProps) {
 
       {/* 📊 เมนูจัดการหลัก (Grid Menu) */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        
+
         {/* เมนู: แก้ไขข้อมูลหอพัก */}
-        <Link href={`/admin/dorm/${dorm.slug}/edit`} 
+        <Link href={`/admin/dorm/${dorm.slug}/edit`}
           className="p-6 bg-white rounded-2xl border border-gray-100 shadow-sm hover:border-emerald-200 hover:shadow-md transition-all group">
           <div className="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
             <Building size={24} />
@@ -50,7 +51,7 @@ export default async function AdminDormManagePage({ params }: PageProps) {
         </Link>
 
         {/* เมนู: จัดการประเภทห้อง */}
-        <Link href={`/admin/dorm/${dorm.slug}/rooms`} 
+        <Link href={`/admin/dorm/${dorm.slug}/rooms`}
           className="p-6 bg-white rounded-2xl border border-gray-100 shadow-sm hover:border-emerald-200 hover:shadow-md transition-all group">
           <div className="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
             <BedDouble size={24} />
@@ -60,7 +61,7 @@ export default async function AdminDormManagePage({ params }: PageProps) {
         </Link>
 
         {/* เมนู: ดูรายการจอง */}
-        <Link href={`/admin/dorm/${dorm.slug}/bookings`} 
+        <Link href={`/admin/dorm/${dorm.slug}/bookings`}
           className="p-6 bg-white rounded-2xl border border-gray-100 shadow-sm hover:border-emerald-200 hover:shadow-md transition-all group">
           <div className="w-12 h-12 bg-purple-50 text-purple-600 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
             <CalendarCheck size={24} />
@@ -79,9 +80,7 @@ export default async function AdminDormManagePage({ params }: PageProps) {
         <p className="text-sm text-red-600/80 mb-4">
           การลบหอพักจะทำให้ข้อมูลห้องพักและการจองที่เกี่ยวข้องถูกลบทั้งหมด (ระวังในการใช้งาน)
         </p>
-        <button className="px-4 py-2 bg-white border border-red-200 text-red-600 rounded-lg text-sm font-semibold hover:bg-red-50 transition-colors">
-          ลบหอพักนี้
-        </button>
+        <DeleteDormButton dormId={dorm.id} dormName={dorm.name} />
       </div>
 
     </div>

@@ -1,19 +1,18 @@
-// lib/matching.ts
+"use server";
 
 import { getAuthUser } from "@/lib/auth";
 import { prisma } from "@/lib/db";
-import { User } from "@prisma/client";
 
 export interface Lifestyle {
   study_time: string;
   location: string;
   guest_policy: string;
-  cleanliness: number; // 1-5 หรือตามที่คุณเก็บ
+  cleanliness: number; 
   sleepHabit: string;
   smoking: boolean;
 }
 
-// lib/matching.ts
+
 
 
 export async function getPotentialMatches() {

@@ -1,4 +1,3 @@
-// app/action/user.ts ("use server")
 "use server";
 
 import { getAuthUser } from "@/lib/auth";

@@ -21,17 +21,6 @@ export function AmenitiesSection({
         <AmenityGroup title="ภายในห้อง" items={indoorAmenities} />
         <AmenityGroup title="ส่วนกลาง" items={commonAmenities} />
       </div>
-
-      <div className="mt-6 rounded-2xl border border-gray-100 bg-gray-50 p-4">
-        <div className="flex items-start justify-between gap-3">
-          <div className="min-w-0">
-            <div className="text-sm font-semibold text-gray-900">แผนที่ & ตำแหน่ง</div>
-            <div className="text-sm text-gray-600">เตรียมพื้นที่สำหรับ Google Maps Embed ในอนาคต</div>
-          </div>
-          <div className="text-xs text-gray-400 shrink-0">Coming soon</div>
-        </div>
-        <div className="mt-3 h-32 w-full rounded-xl border border-dashed border-gray-200 bg-white" />
-      </div>
     </div>
   );
 }
@@ -50,4 +39,3 @@ function AmenityGroup({ title, items }: { title: string; items: string[] }) {
     </div>
   );
 }
-

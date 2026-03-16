@@ -3,7 +3,7 @@ import { Users, Building2, Plus, ShieldCheck } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { StatCard } from "@/components/admin/StatCard";
-import { DormTable } from "@/components/admin/DormTable";
+import { DormTable } from "@/components/admin/dorm/DormTable";
 
 export const dynamic = "force-dynamic";
 
@@ -14,7 +14,7 @@ export default async function AdminDashboard() {
     prisma.dorm.findMany({
       take: 5,
       include: {
-        priceRange: true, 
+        priceRange: true,
       },
       orderBy: { createdAt: 'desc' }
     })

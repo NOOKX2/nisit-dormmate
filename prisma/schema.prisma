@@ -57,6 +57,14 @@ model Dorm {
   name          String
   description   String?
   locationShort String // เช่น "ซอยพหลโยธิน 45"
+
+  // 📍 --- ส่วนที่เพิ่มใหม่สำหรับ Google Maps ---
+  address       String?         // ที่อยู่แบบเต็ม (เช่น บ้านเลขที่ ถนน ตำบล) เพื่อให้ iframe ค้นหาแม่นยำขึ้น
+  lat           Float?          // ละติจูด (Latitude) เผื่ออนาคตทำระบบ "ค้นหาหอพักใกล้ฉัน"
+  lng           Float?          // ลองจิจูด (Longitude)
+  googleMapUrl  String?         // ลิงก์ Google Maps ตรงๆ (เผื่อเจ้าของหอก๊อปปี้ลิงก์มาวาง)
+  // ------------------------------------------
+
   priceRange    DormPriceRange?
   imageUrl      String?
   rating        Float           @default(0)

@@ -3,6 +3,7 @@
 import { getAuthUser } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 
 function generateSlug(text: string) {
   return text
@@ -18,6 +19,10 @@ export async function createDormAction(formData: FormData) {
     const locationShort = formData.get("locationShort") as string;
     const imageUrl = formData.get("imageUrl") as string;
     const description = formData.get("description") as string;
+
+    const address = formData.get("address") as string;
+    const lat = parseFloat(formData.get("lat") as string);
+    const lng = parseFloat(formData.get("lng") as string);
 
     // ฟิลด์ค่าใช้จ่ายเพิ่มเติม
     const electricRateRaw = formData.get("electricRate") as string | null;
@@ -97,6 +102,9 @@ export async function createDormAction(formData: FormData) {
                 locationShort,
                 imageUrl: imageUrl || "/mock/dorm2.jpg", // ใส่รูป Default ถ้าไม่ได้ระบุ
                 description,
+                address: address,
+                lat: lat,
+                lng: lng,
                 electricRate: electricRate ?? undefined,
                 waterRate: waterRate ?? undefined,
                 commonFee: commonFee ?? undefined,
@@ -296,4 +304,20 @@ export async function updateDormBaseInfo(dormId: string, data: {
     console.error("Update Dorm Error:", error);
     return { error: "ไม่สามารถอัปเดตข้อมูลได้ โปรดลองอีกครั้ง" };
   }
+}
+
+export async function deleteDormAction(dormId: string) {
+  try {
+    // 🟢 สั่ง Prisma ลบหอพัก (ข้อมูลห้องพัก/ช่วงราคา ที่ผูกกันอยู่จะโดนลบตามไปด้วยเพราะเราตั้ง onDelete: Cascade ไว้ใน Schema แล้วครับ)
+    await prisma.dorm.delete({
+      where: { id: dormId },
+    });
+  } catch (error) {
+    console.error("Delete dorm error:", error);
+    return { error: "ไม่สามารถลบหอพักได้ โปรดลองอีกครั้ง" };
+  }
+
+  // 🟢 เคลียร์ Cache และเด้งกลับไปหน้า Admin หลัก
+  revalidatePath("/admin");
+  redirect("/admin"); 
 }
