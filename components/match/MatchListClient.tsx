@@ -1,9 +1,9 @@
-'use client'
+"use client";
 
 import { calculateMatchScore } from '@/lib/matching';
-import { CheckCircle2, XCircle } from 'lucide-react'
+import { CheckCircle2, XCircle, MessageSquare } from 'lucide-react' 
+import Link from 'next/link';
 
-// 1. รวมชื่อแสดงผลและ Key ที่ใช้ใน DB ไว้ที่เดียว
 const lifestyleConfigs = [
   { key: 'cleanliness', label: 'ความสะอาด', mapping: { neat: 'ระเบียบจัด', messy: 'รกบ้าง' } },
   { key: 'smoking', label: 'สูบบุหรี่', isBoolean: true },
@@ -20,28 +20,41 @@ export default function MatchListClient({ initialMatches, currentUser }: { initi
     <div className="grid gap-6">
       {initialMatches.map((user) => {
         const score = calculateMatchScore(currentUser, user);
+        const fullName = `${user.firstName} ${user.lastName}`;
         
         return (
-          <div key={user.id} className="bg-white rounded-[2.5rem] p-7 shadow-sm border border-gray-100 flex flex-col md:flex-row gap-8 hover:shadow-md transition-all duration-300">
+          <div key={user.id} className="group bg-white rounded-[2.5rem] p-7 shadow-sm border border-gray-100 flex flex-col md:flex-row gap-8 hover:shadow-xl hover:border-emerald-100 transition-all duration-500 relative overflow-hidden">
+            
             {/* คะแนน Match */}
-            <div className="flex flex-col items-center justify-center bg-linear-to-br from-emerald-50 to-teal-50 rounded-[2rem] p-6 min-w-37.5 border border-emerald-100 shadow-inner">
+            <div className="flex flex-col items-center justify-center bg-linear-to-br from-emerald-50 to-teal-50 rounded-[2rem] p-6 min-w-37.5 border border-emerald-100 shadow-inner group-hover:from-emerald-100 group-hover:to-teal-100 transition-colors">
               <span className="text-emerald-600 font-bold text-[10px] mb-1 uppercase tracking-[0.2em]">Match Score</span>
               <span className="text-5xl font-black text-emerald-700">{score}%</span>
             </div>
 
             {/* ข้อมูล */}
             <div className="flex-1">
-              <div className="mb-6">
-                <h2 className="text-2xl font-black text-gray-900">
-                  {`${user.firstName} ${user.lastName}`}
-                </h2>
-                <p className="text-emerald-600 text-sm font-bold flex items-center gap-2">
-                   <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span>
-                   {user.faculty || 'นิสิตมหาวิทยาลัย'}
-                </p>
+              <div className="flex justify-between items-start mb-6">
+                <div>
+                  <h2 className="text-2xl font-black text-gray-900 group-hover:text-emerald-900 transition-colors">
+                    {fullName}
+                  </h2>
+                  <p className="text-emerald-600 text-sm font-bold flex items-center gap-2">
+                     <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span>
+                     {user.faculty || 'นิสิตมหาวิทยาลัย'}
+                  </p>
+                </div>
+
+                {/* 🟢 ปุ่มทักแชท (ย้ายมาไว้ตรงนี้เพื่อให้เด่นเหมือนหน้า Post) */}
+                <Link 
+                  href={`/chat?userId=${user.id}&name=${fullName}`}
+                  className="bg-white hover:bg-emerald-600 text-emerald-600 hover:text-white border border-emerald-100 hover:border-emerald-600 px-5 py-2.5 rounded-2xl font-bold text-sm transition-all flex items-center gap-2 shadow-sm active:scale-95"
+                >
+                  <MessageSquare size={18} />
+                  <span>ทักแชท</span>
+                </Link>
               </div>
 
-              {/* 🟢 Lifestyle Grid - วนลูปจาก Config */}
+              {/* 🟢 Lifestyle Grid */}
               <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
                 {lifestyleConfigs.map((config) => {
                   const rawValue = user[config.key];
@@ -49,7 +62,6 @@ export default function MatchListClient({ initialMatches, currentUser }: { initi
                     ? (rawValue ? "สูบ" : "ไม่สูบ")
                     : (config.mapping?.[rawValue as keyof typeof config.mapping] || rawValue);
                   
-                  // เช็คว่าตรงกับ currentUser ไหม
                   const isMatch = user[config.key] === currentUser[config.key];
 
                   return (

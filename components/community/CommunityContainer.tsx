@@ -5,7 +5,6 @@ import { useState } from "react";
 import { getPosts } from "@/app/action/feed";
 import { CreatePostForm } from "./CreatePostForm";
 import { PostItem } from "./PostItem";
-import { ChatSidebar } from "./ChatSidebar";
 
 interface CommunityContainerProps {
   initialPosts: any[];
@@ -16,9 +15,7 @@ interface CommunityContainerProps {
 export function CommunityContainer({ initialPosts, currentUserId, currentUserName }: CommunityContainerProps) {
   // 🟢 ใช้ข้อมูลตั้งต้นจาก Server แทนการเริ่มด้วย []
   const [posts, setPosts] = useState<any[]>(initialPosts);
-  const [activeChatUser, setActiveChatUser] = useState<{ id: string, name: string } | null>(null);
 
-  // ฟังก์ชันนี้เอาไว้เรียกตอนกด "โพสต์ใหม่" ให้มันดึงข้อมูลล่าสุดมาอัปเดตหน้าจอ
   const fetchPosts = async () => {
     const data = await getPosts();
     setPosts(data);
@@ -40,17 +37,10 @@ export function CommunityContainer({ initialPosts, currentUserId, currentUserNam
               key={post.id} 
               post={post} 
               currentUserId={currentUserId} 
-              onChatClick={setActiveChatUser} 
             />
           ))}
         </div>
       </div>
-
-      {/* 💬 ฝั่งขวา: หน้าต่าง Chat */}
-      <ChatSidebar 
-        activeChatUser={activeChatUser} 
-        currentUserId={currentUserId} 
-      />
     </div>
   );
 }

@@ -17,6 +17,9 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Nisit Dormmate",
   description: "Find and booking dormmate for",
+  icons: {
+    icon: '/nisit_dormmate_logo.jpg', 
+  },
 };
 
 export default function RootLayout({

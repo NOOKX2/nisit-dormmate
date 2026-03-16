@@ -31,7 +31,7 @@ export default async function MyBookingsPage() {
         where: { userId: userId },
         include: {
             dorm: true,
-            room: true, // ดึงข้อมูล Room ตาม Schema
+            room: true,
         },
         orderBy: {
             createdAt: 'desc',
@@ -54,7 +54,7 @@ export default async function MyBookingsPage() {
                             <Inbox className="text-gray-300" size={48} />
                         </div>
                         <h3 className="text-xl font-bold text-gray-900">ยังไม่มีการจอง</h3>
-                        <Link href="/" className="inline-flex items-center justify-center bg-emerald-600 text-white px-8 py-4 rounded-2xl font-bold mt-6 hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-100">
+                        <Link href="/dorm" className="inline-flex items-center justify-center bg-emerald-600 text-white px-8 py-4 rounded-2xl font-bold mt-6 hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-100">
                             หาหอพักที่ถูกใจ
                         </Link>
                     </div>
