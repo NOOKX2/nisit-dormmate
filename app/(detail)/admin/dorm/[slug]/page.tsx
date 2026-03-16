@@ -1,4 +1,3 @@
-import { prisma } from "@/lib/db";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ChevronLeft, Building, BedDouble, CalendarCheck, Edit, Trash2 } from "lucide-react";

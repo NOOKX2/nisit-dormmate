@@ -12,28 +12,41 @@ import { User } from "@prisma/client";
 interface FeedbackModalProps {
     isOpen: boolean;
     onClose: () => void;
-    user: User;
+    // 🟢 ปรับให้รับค่า null หรือ undefined ได้เผื่อกรณีไม่ได้ล็อกอิน
+    user?: User | null; 
 }
 
 export function FeedbackModal({ isOpen, onClose, user }: FeedbackModalProps) {
     const [isPending, setIsPending] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
+    if (!isOpen) return null;
 
-    if (!isOpen) return null; // ถ้า state ปิดอยู่ ไม่ต้องเรนเดอร์อะไรเลย
+    // 🟢 วิธีเช็คชื่อ: ถ้ามีชื่อให้ใช้ชื่อ ถ้าไม่มีให้บอกว่าเป็นบุคคลทั่วไป
+    const fullName = user?.firstName && user?.lastName 
+        ? `${user.firstName} ${user.lastName}` 
+        : "บุคคลทั่วไป (ไม่ได้ล็อกอิน)";
 
     async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
-        setIsPending(true);
-
+        
+        // 🟢 ตรวจสอบข้อความก่อนส่ง (Trim ช่องว่างทิ้ง)
         const formData = new FormData(e.currentTarget);
-        console.log(formData);
-        const result = await sendFeedbackAction(formData);
+        const message = formData.get("message") as string;
+        
+        if (!message || message.trim().length === 0) {
+            toast.error("กรุณาพิมพ์ข้อความก่อนส่งนะครับ");
+            return;
+        }
 
+        setIsPending(true);
+        setError(null);
+
+        const result = await sendFeedbackAction(formData);
 
         if (result?.success) {
             toast.success("ส่งข้อเสนอแนะเรียบร้อย ทีมงานจะรีบตรวจสอบครับ!");
-            onClose(); // ส่งเสร็จแล้วปิดหน้าต่างอัตโนมัติ
+            onClose();
         } else if (result?.error) {
             setError(result.error);
             toast.error(result.error);
@@ -46,7 +59,7 @@ export function FeedbackModal({ isOpen, onClose, user }: FeedbackModalProps) {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-200">
             <div
                 className="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-200"
-                onClick={(e) => e.stopPropagation()} // ป้องกันการคลิกทะลุ
+                onClick={(e) => e.stopPropagation()}
             >
                 {/* Header ของ Modal */}
                 <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-emerald-50/50">
@@ -61,22 +74,24 @@ export function FeedbackModal({ isOpen, onClose, user }: FeedbackModalProps) {
                         <X size={20} />
                     </button>
                 </div>
+                
                 <FormError message={error} />
 
                 {/* ฟอร์มส่งข้อมูล */}
                 <form onSubmit={onSubmit} className="p-6">
                     <p className="text-sm text-gray-500 mb-4">
-                        พบปัญหาการใช้งานระบบจองหอพัก หรือมีข้อเสนอแนะ พิมพ์บอกทีมงานได้เลยครับ ข้อความจะถูกส่งตรงถึงทีมดูแลระบบทันที
+                        พบปัญหาการใช้งานระบบจองหอพัก หรือมีข้อเสนอแนะ พิมพ์บอกทีมงานได้เลยครับ
                     </p>
 
-                    <input type="hidden" name="userName" value={user?.name || "บุคคลทั่วไป (ไม่ได้ล็อกอิน)"} />
-                    <input type="hidden" name="userEmail" value={user?.email || "ไม่มีอีเมล"} />
+                    {/* 🟢 ส่งข้อมูล User ไปยัง Action อย่างปลอดภัย */}
+                    <input type="hidden" name="userName" value={fullName} />
+                    <input type="hidden" name="userEmail" value={user?.email ?? "no-email@anonymous.com"} />
 
                     <Textarea
                         name="message"
                         placeholder="อธิบายปัญหาที่คุณพบ เช่น หน้าเว็บโหลดช้า, กดจองไม่ได้..."
                         required
-                        className="mb-6 rounded-2xl resize-none min-h-30 focus-visible:ring-emerald-500"
+                        className="mb-6 rounded-2xl resize-none min-h-30 focus-visible:ring-emerald-500 border-gray-200"
                     />
 
                     <div className="flex justify-end gap-3">
@@ -91,9 +106,13 @@ export function FeedbackModal({ isOpen, onClose, user }: FeedbackModalProps) {
                         <Button
                             type="submit"
                             disabled={isPending}
-                            className="rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white px-6 font-bold shadow-lg shadow-emerald-200"
+                            className="rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white px-6 font-bold shadow-lg shadow-emerald-200/50"
                         >
-                            {isPending ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> กำลังส่ง...</> : "ส่งข้อความ"}
+                            {isPending ? (
+                                <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> กำลังส่ง...</>
+                            ) : (
+                                "ส่งข้อความ"
+                            )}
                         </Button>
                     </div>
                 </form>
