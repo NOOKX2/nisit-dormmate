@@ -6,25 +6,28 @@ export function calculateMatchScore(user1: User, user2: User): number {
 
   let score = 0;
 
+  // 🟢 Helper Function: เช็คว่า "ต้องมีค่าทั้งคู่" และ "ต้องตรงกัน" เท่านั้นถึงจะได้คะแนน
+  const isMatch = (val1: string |boolean | null | undefined, val2: string | boolean | null | undefined) => {
+    return val1 && val2 && val1 === val2; 
+  };
+
   // 🟢 1. Smoking (Deal Breaker - 30%)
-  // ใช้ || "" เพื่อป้องกัน null และให้เปรียบเทียบเป็น String
-  if ((user1.smoking || "") === (user2.smoking || "")) {
+  if (isMatch(user1.smoking, user2.smoking)) {
     score += 30;
   }
 
   // 🟢 2. Cleanliness (20%) 
-  // ใน Schema ใหม่เป็น String ('neat' หรือ 'messy')
-  if ((user1.cleanliness || "") === (user2.cleanliness || "")) {
+  if (isMatch(user1.cleanliness, user2.cleanliness)) {
     score += 20;
   }
 
   // 🟢 3. Sleep Habit / Study Time (25%)
-  if ((user1.sleepHabit || "") === (user2.sleepHabit || "")) {
+  if (isMatch(user1.sleepHabit, user2.sleepHabit)) {
     score += 25;
   }
 
   // 🟢 4. Guest Policy (25%)
-  if ((user1.guest_policy || "") === (user2.guest_policy || "")) {
+  if (isMatch(user1.guest_policy, user2.guest_policy)) {
     score += 25;
   }
 
