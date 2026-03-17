@@ -3,13 +3,14 @@ import { AmenitiesSection } from '@/components/dorm/detail/AmenitiesSection';
 import { BookingFooter } from '@/components/dorm/detail/BookingFooter';
 import { DormTitleInfo } from '@/components/dorm/detail/DormTitleInfo';
 import { UtilityInfo } from '@/components/dorm/detail/UtilityInfo';
-import { ReviewCard } from '@/components/dorm/ReviewCard';
 import { ScoreItem } from '@/components/dorm/ScoreItem';
 import { BackButton } from '@/components/ui/BackButton';
 import { Wifi, Shield, Heart } from 'lucide-react';
 import { checkUserBookingStatus, getDormBySlug } from '@/app/action/dorm';
 import { notFound } from 'next/navigation';
 import { LocationSection } from '@/components/dorm/detail/LocationSection';
+import { ReviewSection } from '@/components/dorm/detail/ReviewSection';
+import { getAuthUser } from '@/lib/auth';
 
 interface PageProps {
   params: Promise<{ slug: string }>; // Next.js 15+ params เป็น Promise
@@ -21,6 +22,7 @@ export default async function DormDetailPage({ params }: PageProps) {
   const resolvedParams = await params;
   const slug = decodeURIComponent(resolvedParams.slug);
   const dorm = await getDormBySlug(slug);
+  const user = await getAuthUser();
 
   // 2. ถ้าไม่พบข้อมูล ให้แสดงหน้า 404
   if (!dorm) {
@@ -83,14 +85,7 @@ export default async function DormDetailPage({ params }: PageProps) {
         />
 
         {/* Reviews Section (ส่วนนี้ยัง Mock ไว้ก่อนได้ครับจนกว่าจะมีตาราง Review) */}
-        <div className="bg-white p-6 rounded-2xl shadow-sm mb-24">
-          <h2 className="text-lg font-bold text-gray-900 mb-4">รีวิวจากผู้อยู่จริง</h2>
-          <ReviewCard
-            author="น้องออม" faculty="วิศวะ" year={1} rating={5} date="15 ม.ค. 2026"
-            comment="หอนี้เดินทางสะดวกมากครับ อยู่ใกล้คณะวิศวะเลย"
-            helpfulCount={24}
-          />
-        </div>
+      <ReviewSection dormId={dorm.id} currentUserId={user?.id}/>
 
         {/* Sticky Bottom Button */}
         <BookingFooter hasBooked={hasBooked} dormSlug={dorm.slug} />

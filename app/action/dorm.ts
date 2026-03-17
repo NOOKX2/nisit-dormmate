@@ -170,6 +170,7 @@ export async function getDorms() {
         const dorms = await prisma.dorm.findMany({
             include: {
                 priceRange: true, // 👈 สำคัญมาก! ต้องใส่บรรทัดนี้
+                reviews: true,
             },
             orderBy: {
                 createdAt: 'desc', // เอาหอพักใหม่ขึ้นก่อน

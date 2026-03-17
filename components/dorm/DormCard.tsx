@@ -1,16 +1,19 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { MapPin, Star, Wifi, Shield, Car, CheckCircle2 } from 'lucide-react';
-import { Dorm, DormPriceRange } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 import { checkUserBookingStatus } from '@/app/action/dorm';
 
 // 🟢 รวม Type ระหว่าง Dorm และ PriceRange
-type DormWithPrice = Dorm & {
-  priceRange: DormPriceRange | null;
-};
+type DormWithDetails = Prisma.DormGetPayload<{
+  include: {
+    priceRange: true;
+    reviews: true; // บอก Prisma ว่าเรามี reviews พ่วงมาด้วยนะ
+  };
+}>;
 
 interface DormCardProps {
-  dorm: DormWithPrice;
+  dorm: DormWithDetails;
 }
 
 // Map ไอคอนสำหรับสิ่งอำนวยความสะดวก
@@ -90,7 +93,7 @@ export async function DormCard({ dorm }: DormCardProps) {
             <div className="flex items-center gap-1">
               <Star size={16} className="text-yellow-400" fill="currentColor" /> 
               <span className="font-bold">{dorm.rating.toFixed(1)}</span>
-              <span className="text-gray-400">({dorm.reviewCount} รีวิว)</span>
+              <span className="text-gray-400">({dorm.reviews.length} รีวิว)</span>
             </div>
 
             {hasBooked && (
