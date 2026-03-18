@@ -28,6 +28,11 @@ const nextConfig: NextConfig = {
         hostname: 'www.wonderfulpackage.com', 
         pathname: '/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'api.dicebear.com', 
+        pathname: '/**',
+      },
     ],
   },
 };

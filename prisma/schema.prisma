@@ -45,6 +45,10 @@ model User {
   bookings         Booking[]
   reviews          Review[]
 
+  // 🤝 เพิ่มความสัมพันธ์สำหรับ "รีวิวรูมเมท" (Mate Karma)
+  roommateReviewsGiven    RoommateReview[] @relation("Reviewer")
+  roommateReviewsReceived RoommateReview[] @relation("TargetUser")
+
   // --- Metadata ---
   createdAt        DateTime  @default(now())
   updatedAt        DateTime  @updatedAt
@@ -178,4 +182,39 @@ model Message {
   senderId   String   // ID ของคนส่งข้อความ
   receiverId String   // ID ของคนรับข้อความ
   createdAt  DateTime @default(now())
+}
+
+
+// 🤝 ข้อมูลรีวิวรูมเมท (Mate Karma)
+model RoommateReview {
+  id                 String   @id @default(cuid())
+  
+  // รหัสของนิสิตที่เข้าไปเขียนรีวิว
+  reviewerId         String
+  reviewer           User     @relation("Reviewer", fields: [reviewerId], references: [id], onDelete: Cascade)
+  
+  // รหัสของรูมเมทที่ "ถูกรีวิว"
+  targetUserId       String
+  targetUser         User     @relation("TargetUser", fields: [targetUserId], references: [id], onDelete: Cascade)
+
+  // คะแนนย่อย 3 ด้าน (1-5)
+  considerationScore Int      // ความเกรงใจ
+  cleanlinessScore   Int      // ความสะอาด
+  financeScore       Int      // การเงิน
+
+  // ข้อความรีวิว
+  comment            String   @db.Text
+  
+  // สถานะและสถิติ
+  isVerified         Boolean  @default(false) // ยืนยันว่าเคยเป็นรูมเมทกันจริง
+  helpfulCount       Int      @default(0)     // คนกดมีประโยชน์ (Thumbs Up)
+
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  // 🛡️ ป้องกันการปั่นรีวิว: 1 คน (Reviewer) สามารถรีวิวรูมเมท (Target) คนเดิมได้แค่ 1 ครั้ง
+  @@unique([reviewerId, targetUserId])
+  
+  // ⚡️ เพิ่ม Index เพื่อให้ดึงคะแนนของ TargetUser มาคำนวณ Mate Karma ได้เร็วปรู๊ดปร๊าด
+  @@index([targetUserId])
 }
