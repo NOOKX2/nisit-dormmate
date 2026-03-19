@@ -1,13 +1,14 @@
 "use client";
 
 import { calculateMatchScore } from '@/lib/matching';
-import { MessageSquare, UserSearch, UserCircle } from 'lucide-react'; // เปลี่ยนไอคอนเป็น UserSearch
+import { MessageSquare, UserSearch, UserCircle, Handshake } from 'lucide-react'; 
 import Link from 'next/link';
 import Image from 'next/image';
 import { lifestyleConfigs } from '@/config/lifestyle';
+import { User } from '@prisma/client';
 
 
-export default function MatchListClient({ initialMatches, currentUser }: { initialMatches: any[], currentUser: any }) {
+export default function MatchListClient({ initialMatches, currentUser }: { initialMatches: User[], currentUser: User | null }) {
   if (!currentUser) return <div className="text-center p-10 bg-gray-50 rounded-3xl">กรุณาเข้าสู่ระบบก่อนดูรายการ</div>;
 
   return (
@@ -16,26 +17,26 @@ export default function MatchListClient({ initialMatches, currentUser }: { initi
       <div className="flex flex-col gap-4">
         {initialMatches.map((user) => {
           const score = calculateMatchScore(currentUser, user);
-          const fullName = `${user.firstName}`; 
-          
+          const fullName = `${user.firstName}`;
+
           const matchTags = lifestyleConfigs
-            .filter(config => user[config.key] === currentUser[config.key] && user[config.key])
+            .filter(config => user[config.key as keyof User] === currentUser[config.key as keyof User] && user[config.key as keyof User])
             .map(config => {
-              const rawValue = user[config.key];
+              const rawValue = user[config.key as keyof User];
               if (config.isBoolean) return rawValue ? "สูบบุหรี่" : "ไม่สูบบุหรี่";
-              return config.mapping?.[rawValue as keyof typeof config.mapping] || rawValue;
+              return String(config.mapping?.[rawValue as keyof typeof config.mapping] || rawValue);
             })
-            .slice(0, 3); 
+            .slice(0, 3);
 
           return (
             <div key={user.id} className="bg-white rounded-2xl p-5 border border-gray-100 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] flex flex-col gap-4 transition-all hover:border-emerald-200">
-              
+
               <div className="flex justify-between items-start w-full">
                 <div className="flex items-start gap-4">
                   <div className="relative pt-1 pl-1">
                     <div className="w-16 h-16 rounded-full overflow-hidden bg-gray-100 border-2 border-white shadow-sm shrink-0">
-                      {user.avatarUrl ? (
-                        <Image src={user.avatarUrl} alt={fullName} fill className="object-cover" />
+                      {user.image ? (
+                        <Image src={user.image} alt={fullName} fill className="object-cover" />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center text-emerald-200 bg-emerald-50">
                           <UserCircle size={40} />
@@ -54,7 +55,7 @@ export default function MatchListClient({ initialMatches, currentUser }: { initi
                     <p className="text-[13px] text-gray-500 font-medium mb-2">
                       {user.faculty || 'คณะไม่ระบุ'} - ปี {user.year || '1'}
                     </p>
-                    
+
                     <div className="flex flex-wrap gap-1.5">
                       {matchTags.map((tag, index) => (
                         <span key={index} className="bg-emerald-50 text-[#4CAF50] text-[11px] font-bold px-2.5 py-1 rounded-full border border-emerald-100/50">
@@ -71,21 +72,25 @@ export default function MatchListClient({ initialMatches, currentUser }: { initi
                 </div>
               </div>
 
-              {/* 🟢 อัปเดตปุ่ม Action ใหม่ตามโมเดลที่ 1 */}
+           
               <div className="flex gap-3 mt-1">
                 {/* ปุ่มดูโปรไฟล์ (Outline) */}
-                <Link 
+                <Link
                   href={`/match/${user.id}`}
-                  className="flex-1 border-[1.5px] border-[#4CAF50] text-[#4CAF50] hover:bg-emerald-50 py-2.5 rounded-xl text-sm font-bold transition-colors flex items-center justify-center gap-2 active:scale-[0.98]"
+                  className="flex-1 border-[1.5px] border-[#4CAF50] text-[#4CAF50] hover:bg-emerald-100 py-2.5 rounded-xl text-sm font-bold transition-colors flex items-center justify-center gap-2 active:scale-[0.98]"
                 >
                   <UserSearch size={16} className="stroke-[2.5]" />
                   ดูโปรไฟล์
                 </Link>
-                
+
+                <button  className="flex-[2.5] bg-emerald-400  border border-emerald-100 py-2.5 rounded-xl text-white text-sm font-bold hover:bg-emerald-500 transition-all flex items-center justify-center gap-2 active:scale-95">
+                 <Handshake size={16} /> <span>จับคู่เมท</span>
+                </button>
+
                 {/* ปุ่มทักแชท (Solid หลัก) */}
-                <Link 
+                <Link
                   href={`/chat?userId=${user.id}&name=${fullName}`}
-                  className="flex-1 bg-[#4CAF50] hover:bg-[#43a047] text-white py-2.5 rounded-xl text-sm font-bold transition-colors flex items-center justify-center gap-2 active:scale-[0.98]"
+                  className="flex-1 border-[1.5px]  hover:bg-emerald-100 text-green-500 border-green-600 py-2.5 rounded-xl text-sm font-bold transition-colors flex items-center justify-center gap-2 active:scale-[0.98]"
                 >
                   <MessageSquare size={16} className="stroke-[2.5]" />
                   ทักแชท

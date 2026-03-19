@@ -62,5 +62,4 @@ export async function loginAction(formData: FormData) {
         return { error: `ระบบขัดข้อง กรุณาลองใหม่ภายหลัง ${error.message}` };
     }
 
-    redirect('/');
 }

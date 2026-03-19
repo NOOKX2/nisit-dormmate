@@ -6,8 +6,10 @@ import { calculateMatchScore } from '@/lib/matching';
 import { ProfileHeader } from './ProfileHeader';
 import { LifestyleSection } from './LifeStyleSection';
 import { MateKarmaSection } from './MateKarmaSection';
-import { RoommateReview, User } from '@prisma/client';
+import { User } from '@prisma/client';
 import { FormattedReview } from '@/types/formatted-review';
+import { MatchButton } from './MatchButton';
+import { UIMatchStatus } from '@/app/action/matching';
 
 
 const translateLifestyle = (key: string, value: any) => {
@@ -21,7 +23,7 @@ const translateLifestyle = (key: string, value: any) => {
   return mappings[key]?.[value] || value;
 };
 
-export default function RoommateProfileClient({ profileUser, currentUser, initialReviews }: { profileUser: User, currentUser: User | null, initialReviews: FormattedReview[] }) {
+export default function RoommateProfileClient({ profileUser, currentUser, initialReviews, initialMatchStatus}: { profileUser: User, currentUser: User | null, initialReviews: FormattedReview[], initialMatchStatus: UIMatchStatus}) {
   const score = currentUser ? calculateMatchScore(currentUser, profileUser) : 95;
   
 
@@ -39,6 +41,17 @@ export default function RoommateProfileClient({ profileUser, currentUser, initia
           <ProfileHeader user={profileUser} score={score} />
           <LifestyleSection user={profileUser} translate={translateLifestyle} />
           <MateKarmaSection reviews={initialReviews} user={currentUser} targetUser={profileUser}/>
+        </div>
+      </div>
+
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-[0_-10px_30px_-15px_rgba(0,0,0,0.1)] p-4 z-50">
+        <div className="max-w-3xl mx-auto flex gap-3">
+          {/* เอาปุ่ม MatchButton มาใส่ตรงนี้ */}
+          <MatchButton 
+            currentUserId={currentUser?.id} 
+            targetUserId={profileUser.id} 
+            initialMatchStatus={initialMatchStatus} 
+          />
         </div>
       </div>
     </div>
