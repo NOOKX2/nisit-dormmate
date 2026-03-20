@@ -2,10 +2,9 @@
 
 import { useState } from "react";
 import { Handshake, Clock, UserCheck, CheckCircle2, Loader2 } from "lucide-react";
-import { MatchStatus } from "@prisma/client";
-import { UIMatchStatus } from "@/app/action/matching";
+import { sendMatchRequest, UIMatchStatus } from "@/app/action/matching";
 // 🟢 อย่าลืม import Server Actions ของท่านประธานมาใช้นะครับ (แก้ path ให้ตรงกับโปรเจกต์)
-// import { sendMatchRequest, acceptMatchRequest } from "@/app/action/matching"; 
+
 
 interface MatchButtonProps {
   currentUserId?: string;
@@ -18,30 +17,35 @@ export function MatchButton({ currentUserId, targetUserId, initialMatchStatus }:
   const [isLoading, setIsLoading] = useState(false);
 
   const handleAction = async () => {
-    // ดักไว้ก่อน ถ้าเป็น Guest ให้เด้งเตือน (หรือจะเปลี่ยนเป็น router.push('/login') ก็ได้ครับ)
     if (!currentUserId) {
-      alert("กรุณาเข้าสู่ระบบก่อนส่งคำชวนครับ!");
+      alert("กรุณาเข้าสู่ระบบก่อนครับ!");
       return;
     }
 
     setIsLoading(true);
 
     try {
-      if (status === 'NONE') {
-        // 1. จำลองการเปลี่ยน UI ทันทีให้ผู้ใช้รู้สึกว่าเว็บเร็ว (Optimistic UI)
-        setStatus('SENT'); 
+      // ไม่ว่าสถานะจะเป็น NONE หรือ RECEIVED เราสามารถใช้ sendMatchRequest ตัวเดียวจบเลย!
+      if (status === 'NONE' || status === 'RECEIVED') {
         
-        // 2. เรียก Server Action ไปบันทึกลง Database
-        // await sendMatchRequest(currentUserId, targetUserId);
+        // 1. Optimistic UI: เปลี่ยนสีปุ่มไปล่วงหน้าให้ดูไวๆ
+        const nextStatus = status === 'NONE' ? 'SENT' : 'MATCHED';
+        setStatus(nextStatus); 
         
-      } else if (status === 'RECEIVED') {
-        setStatus('MATCHED');
-        // await acceptMatchRequest(currentUserId, targetUserId);
+        // 2. เรียก Server Action สุดฉลาดของท่านประธาน
+        const result = await sendMatchRequest(currentUserId, targetUserId);
+        
+        if (result.success) {
+     
+          setStatus(result.status as UIMatchStatus); 
+        } else {
+          setStatus(initialMatchStatus);
+          alert(result.error);
+        }
       }
     } catch (error) {
-      // ถ้า API พัง ให้ดึงสถานะกลับมาเหมือนเดิม
       setStatus(initialMatchStatus);
-      alert("เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง");
+      alert("เกิดข้อผิดพลาดในการเชื่อมต่อ กรุณาลองใหม่อีกครั้ง");
     } finally {
       setIsLoading(false);
     }
