@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from 'react';
-import { User, LogOut, ChevronDown, Settings, Home, ShieldCheck } from 'lucide-react';
+import { User, LogOut, ChevronDown, Settings, Home, ShieldCheck, UserCheck } from 'lucide-react';
 import { DropdownItem } from './DropDownItem';
 
 
@@ -52,6 +52,13 @@ export default function UserDropdown({ name, onClick }: UserDropdownProps) {
               href="/booking" 
               icon={Home} 
               label="หอพักที่จองไว้" 
+              onClick={closeDropdown} 
+            />
+
+             <DropdownItem 
+              href="/my-roommate" 
+              icon={UserCheck} 
+              label="รูมเมทของฉัน" 
               onClick={closeDropdown} 
             />
 

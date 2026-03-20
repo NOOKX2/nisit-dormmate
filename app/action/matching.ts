@@ -69,9 +69,7 @@ export async function sendMatchRequest(senderId: string, targetUserId: string) {
   }
 }
 
-// ==========================================
-// 2. ตอบรับ/ปฏิเสธ คำขอ (Respond to Request)
-// ==========================================
+
 export async function respondToMatchRequest(requestId: string, action: 'ACCEPT' | 'REJECT') {
   try {
     const newStatus = action === 'ACCEPT' ? 'ACCEPTED' : 'REJECTED';
@@ -88,9 +86,6 @@ export async function respondToMatchRequest(requestId: string, action: 'ACCEPT' 
   }
 }
 
-// ==========================================
-// 3. เช็คสถานะปัจจุบันของ 2 คน (เอาไปใช้โชว์ UI ปุ่ม)
-// ==========================================
 
 
 // 🟢 1. สร้าง Type ง่ายๆ แค่นี้พอครับ
@@ -121,4 +116,37 @@ export async function checkMatchStatus(currentUserId: string, targetUserId: stri
   } catch (error) {
     return 'NONE';
   }
+}
+
+
+export async function getRoommateDashboardData(userId: string) {
+    try {
+        // 1. ดึงข้อมูลทั้งหมดจาก Database
+        const allRequests = await prisma.matchRequest.findMany({
+            where: {
+                OR: [
+                    { senderId: userId },
+                    { receiverId: userId }
+                ]
+            },
+            include: {
+                sender: true,
+                receiver: true,
+            },
+            orderBy: { updatedAt: 'desc' }
+        });
+
+        // 2. จัดกลุ่มให้เสร็จสรรพจากหลังบ้าน
+        const matched = allRequests.filter(req => req.status === "ACCEPTED");
+        const receivedRequests = allRequests.filter(req => req.status === "PENDING" && req.receiverId === userId);
+        const sentRequests = allRequests.filter(req => req.status === "PENDING" && req.senderId === userId);
+
+        // 3. ส่งกลับไปเป็น Object สวยๆ
+        return { success: true, matched, receivedRequests, sentRequests };
+
+    } catch (error) {
+        console.error("Error fetching roommate data:", error);
+        // ถ้า DB พัง ก็ส่ง Array ว่างๆ กลับไป เว็บจะได้ไม่แครช
+        return { success: false, matched: [], receivedRequests: [], sentRequests: [] }; 
+    }
 }
