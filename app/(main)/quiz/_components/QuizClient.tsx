@@ -5,8 +5,8 @@ import { useRouter } from 'next/navigation'
 import { completeQuiz } from '@/app/action/profile'
 import { questions } from '@/lib/quiz-data'
 
-import { QuizProgressBar } from '@/components/quiz/QuizProgressBar'
-import { QuestionCard } from '@/components/quiz/QuestionCard'
+import { QuizProgressBar } from '@/app/(main)/quiz/_components/QuizProgressBar'
+import { QuestionCard } from '@/app/(main)/quiz/_components/QuestionCard'
 import { QuizFinishedScreen } from './QuizFInishScreen'
 
 export function QuizClient({ user }: { user: any }) {
@@ -52,23 +52,23 @@ export function QuizClient({ user }: { user: any }) {
   return (
     <div className="min-h-screen bg-[#F8FAFC] py-12 px-6">
       <div className="max-w-xl mx-auto">
-        
-        <QuizProgressBar 
-          currentStep={currentStep} 
-          totalSteps={questions.length} 
-          category={questions[currentStep].category} 
+
+        <QuizProgressBar
+          currentStep={currentStep}
+          totalSteps={questions.length}
+          category={questions[currentStep].category}
         />
-        
-        <QuestionCard 
-          question={questions[currentStep]} 
-          currentStep={currentStep} 
-          onAnswer={handleAnswer} 
+
+        <QuestionCard
+          question={questions[currentStep]}
+          currentStep={currentStep}
+          onAnswer={handleAnswer}
         />
 
         <p className="text-center text-gray-400 text-xs mt-8">
           ข้อมูลของคุณจะถูกนำไปใช้เพื่อหาคู่รูมเมทที่เหมาะสมที่สุดเท่านั้น
         </p>
-        
+
       </div>
     </div>
   )

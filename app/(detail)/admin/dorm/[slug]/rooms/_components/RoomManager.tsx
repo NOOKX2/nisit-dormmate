@@ -7,7 +7,7 @@ import { toast } from "sonner";
 
 // 🟢 Import Components ย่อยที่เราเพิ่งสร้าง
 import { RoomList } from "./RoomList";
-import { AddRoomForm } from "./AddDormForm";
+import { AddRoomForm } from "./AddRoomForm";
 
 interface RoomManagerProps {
   dormId: string;

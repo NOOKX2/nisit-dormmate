@@ -1,4 +1,4 @@
-import { MenuCard } from '@/components/home/MenuCard';
+import { MenuCard } from '@/app/(main)/_components/MenuCard';
 import { UserCheck, Users, Building, MessageSquare } from 'lucide-react';
 
 export default function HomePage() {

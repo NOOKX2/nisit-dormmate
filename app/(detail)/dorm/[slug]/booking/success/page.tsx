@@ -1,8 +1,8 @@
 import { redirect } from "next/navigation";
 import { getBookingData } from "@/app/action/booking";
-import { SuccessHeader } from "@/components/booking/success/SuccessHeader";
-import { DigitalReceipt } from "@/components/booking/success/DigitalReceipt";
-import { ActionButtons } from "@/components/booking/success/ActionButton";
+import { SuccessHeader } from "@/app/(detail)/dorm/[slug]/booking/success/_components/SuccessHeader";
+import { DigitalReceipt } from "@/app/(detail)/dorm/[slug]/booking/success/_components/DigitalReceipt";
+import { ActionButtons } from "@/app/(detail)/dorm/[slug]/booking/success/_components/ActionButton";
 
 
 export default async function BookingSuccessPage({

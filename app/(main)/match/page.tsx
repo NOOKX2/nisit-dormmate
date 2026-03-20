@@ -1,6 +1,6 @@
 import { getAuthUser } from '@/lib/auth'
 import { getPotentialMatches } from '../../action/matching';
-import MatchListClient from '@/components/match/MatchListClient';
+import MatchListClient from '@/app/(main)/match/_components/MatchListClient';
 
 export default async function MatchPage() {
   // 🟢 Fetch ข้อมูลที่ฝั่ง Server ทันที

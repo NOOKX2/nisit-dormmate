@@ -1,15 +1,15 @@
-import { DormHeroImage } from '@/components/dorm/detail/DormHeroImage';
-import { AmenitiesSection } from '@/components/dorm/detail/AmenitiesSection';
-import { BookingFooter } from '@/components/dorm/detail/BookingFooter';
-import { DormTitleInfo } from '@/components/dorm/detail/DormTitleInfo';
-import { UtilityInfo } from '@/components/dorm/detail/UtilityInfo';
-import { ScoreItem } from '@/components/dorm/ScoreItem';
+import { DormHeroImage } from '@/app/(detail)/dorm/[slug]/_components/DormHeroImage';
+import { AmenitiesSection } from '@/app/(detail)/dorm/[slug]/_components/AmenitiesSection';
+import { BookingFooter } from '@/app/(detail)/dorm/[slug]/_components/BookingFooter';
+import { DormTitleInfo } from '@/app/(detail)/dorm/[slug]/_components/DormTitleInfo';
+import { UtilityInfo } from '@/app/(detail)/dorm/[slug]/_components/UtilityInfo';
+import { ScoreItem } from '@/app/(main)/dorm/_components/ScoreItem';
 import { BackButton } from '@/components/ui/BackButton';
 import { Wifi, Shield, Heart } from 'lucide-react';
 import { checkUserBookingStatus, getDormBySlug } from '@/app/action/dorm';
 import { notFound } from 'next/navigation';
-import { LocationSection } from '@/components/dorm/detail/LocationSection';
-import { ReviewSection } from '@/components/dorm/detail/ReviewSection';
+import { LocationSection } from '@/app/(detail)/dorm/[slug]/_components/LocationSection';
+import { ReviewSection } from '@/app/(detail)/dorm/[slug]/_components/ReviewSection';
 import { getAuthUser } from '@/lib/auth';
 
 interface PageProps {
@@ -80,12 +80,12 @@ export default async function DormDetailPage({ params }: PageProps) {
         <LocationSection
           dormName={dorm.name}
           address={dorm.address}
-          lat={dorm.lat} 
-          lng={dorm.lng} 
+          lat={dorm.lat}
+          lng={dorm.lng}
         />
 
         {/* Reviews Section (ส่วนนี้ยัง Mock ไว้ก่อนได้ครับจนกว่าจะมีตาราง Review) */}
-      <ReviewSection dormId={dorm.id} currentUserId={user?.id}/>
+        <ReviewSection dormId={dorm.id} currentUserId={user?.id} />
 
         {/* Sticky Bottom Button */}
         <BookingFooter hasBooked={hasBooked} dormSlug={dorm.slug} />

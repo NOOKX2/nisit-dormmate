@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ChevronLeft } from "lucide-react";
-import { BookingList } from "@/components/admin/dorm/booking/BookingList";
+import { BookingList } from "@/app/(detail)/admin/dorm/[slug]/bookings/[id]/_components/BookingList";
 import { getDormBySlug } from "@/app/action/dorm";
 
 export default async function AdminDormBookingsPage({ params }: { params: Promise<{ slug: string }> }) {
@@ -28,7 +28,7 @@ export default async function AdminDormBookingsPage({ params }: { params: Promis
         </div>
       </div>
 
-      <BookingList initialBookings={allBookings} slug={slug}/>
+      <BookingList initialBookings={allBookings} slug={slug} />
     </div>
   );
 }

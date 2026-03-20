@@ -1,8 +1,8 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ChevronLeft } from "lucide-react";
-import { EditDormForm } from "@/components/admin/dorm/edit/EditDormForm";
 import { getDormBySlug } from "@/app/action/dorm";
+import { EditDormForm } from "./_components/EditDormForm";
 
 interface PageProps {
   params: Promise<{ slug: string }>;

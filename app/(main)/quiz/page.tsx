@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation'
-import { getQuizUser } from '@/app/action/profile' 
-import { QuizClient } from '@/components/quiz/QuizClient'
+import { getQuizUser } from '@/app/action/profile'
+import { QuizClient } from '@/app/(main)/quiz/_components/QuizClient'
 
 export default async function QuizPage() {
   const user = await getQuizUser()
@@ -9,7 +9,7 @@ export default async function QuizPage() {
     redirect('/login')
   }
 
- 
+
 
   return (
     <QuizClient user={user} />

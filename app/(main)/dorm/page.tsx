@@ -1,6 +1,6 @@
 import { getDorms } from '@/app/action/dorm';
-import { DormCard } from '@/components/dorm/DormCard';
-import { DormSearch } from '@/components/dorm/DormSearch';
+import { DormCard } from '@/app/(main)/dorm/_components/DormCard';
+import { DormSearch } from '@/app/(main)/dorm/_components/DormSearch';
 import { Building } from 'lucide-react';
 
 
@@ -32,9 +32,9 @@ export default async function DormListingPage() {
         {/* Dorm List Grid */}
         <div className="grid grid-cols-1 gap-4">
           {dorms.map((dorm) => (
-           
-              <DormCard key={dorm.id} dorm={dorm} />
-        
+
+            <DormCard key={dorm.id} dorm={dorm} />
+
           ))}
         </div>
 

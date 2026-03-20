@@ -3,7 +3,7 @@ import Link from "next/link";
 import { ChevronLeft, Building, BedDouble, CalendarCheck, Edit, Trash2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge"; // ถ้าไม่มี ใช้ <span> ปรับ style เอาได้ครับ
 import { getDormBySlug } from "@/app/action/dorm";
-import { DeleteDormButton } from "@/components/admin/dorm/DeleteDormButton";
+import { DeleteDormButton } from "@/app/(detail)/admin/dorm/[slug]/_components/DeleteDormButton";
 
 interface PageProps {
   params: Promise<{ slug: string }>;

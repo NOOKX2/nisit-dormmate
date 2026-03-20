@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { getAuthUser } from "@/lib/auth";
-import { ChatClient } from "@/components/community/chat/ChatClient";
+import { ChatClient } from "@/app/(main)/chat/_components/ChatClient";
 import { getChatContacts } from "@/app/action/chat";
 
 

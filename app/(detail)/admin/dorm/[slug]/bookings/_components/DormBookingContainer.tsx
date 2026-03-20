@@ -5,12 +5,13 @@ import { useRouter } from "next/navigation";
 import { ChevronLeft, Bed, Calendar, Phone, User, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { SectionWrapper } from "@/components/booking/SectionWrapper";
-import { ExtendedRoom, RoomOptionCard } from "@/components/booking/RoomOptionCard";
-import { BookingField } from "@/components/booking/BookingField";
+
 import { FormError } from "@/components/ui/FormError";
 import { RoomWithBookingRoommate } from "@/types/room";
 import { calculateMatchScore } from "@/lib/matching";
+import { SectionWrapper } from "./SectionWrapper";
+import { BookingField } from "./BookingField";
+import { ExtendedRoom, RoomOptionCard } from "./RoomOptionCard";
 
 interface DormBookingContainerProps {
     dorm: any;

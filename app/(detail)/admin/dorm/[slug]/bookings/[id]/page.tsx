@@ -1,12 +1,12 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ChevronLeft, User, MapPin } from "lucide-react";
-import { StatusBadge } from "@/components/admin/dorm/booking/StatusBadge";
-import { DigitalReceipt } from "@/components/booking/success/DigitalReceipt";
+import { StatusBadge } from "@/app/(detail)/admin/dorm/[slug]/bookings/[id]/_components/StatusBadge";
+import { DigitalReceipt } from "@/app/(detail)/dorm/[slug]/booking/success/_components/DigitalReceipt";
 
 // 🟢 1. Import ฟังก์ชันดึงข้อมูล และ ปุ่ม Action
 import { getBookingData } from "@/app/action/booking";
-import { BookingActionButtons } from "@/components/admin/dorm/booking/BookingActionButtons";
+import { BookingActionButtons } from "@/app/(detail)/admin/dorm/[slug]/bookings/[id]/_components/BookingActionButtons";
 
 interface PageProps {
   params: Promise<{ slug: string; id: string }>;
@@ -14,7 +14,7 @@ interface PageProps {
 
 export default async function BookingDetailPage({ params }: PageProps) {
   const { slug, id } = await params;
-  
+
   // 🟢 2. เรียกใช้ฟังก์ชันดึงข้อมูล (ที่พ่วง user และ room มาแล้ว)
   const booking = await getBookingData(id);
 
@@ -23,7 +23,7 @@ export default async function BookingDetailPage({ params }: PageProps) {
 
   return (
     <div className="max-w-4xl mx-auto p-4 md:p-8 space-y-6">
-      
+
       {/* 🔙 Navigation */}
       <div className="flex items-center justify-between mb-6">
         <Link href={`/admin/dorm/${slug}/bookings`} className="flex items-center gap-2 text-gray-500 hover:text-gray-900 transition-colors">
@@ -34,10 +34,10 @@ export default async function BookingDetailPage({ params }: PageProps) {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        
+
         {/* 📋 ฝั่งซ้าย: ข้อมูลผู้จองและรายละเอียดหอ */}
         <div className="lg:col-span-2 space-y-6">
-          
+
           {/* ข้อมูลนิสิต */}
           <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm space-y-4">
             <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
@@ -84,7 +84,7 @@ export default async function BookingDetailPage({ params }: PageProps) {
 
         {/* 📸 ฝั่งขวา: หลักฐานการโอน (สลิป) และปุ่มกด */}
         <div className="space-y-6">
-          
+
           {/* ใบเสร็จดิจิทัล */}
           <DigitalReceipt booking={booking} />
 

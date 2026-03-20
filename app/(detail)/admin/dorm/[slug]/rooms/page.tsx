@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ChevronLeft } from "lucide-react";
-import { RoomManager } from "@/components/admin/dorm/rooms/RoomManager";
+import { RoomManager } from "@/app/(detail)/admin/dorm/[slug]/rooms/_components/RoomManager";
 import { getDormBySlug } from "@/app/action/dorm";
 
 interface PageProps {

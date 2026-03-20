@@ -7,12 +7,14 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { createDormAction } from "@/app/action/dorm";
 import { FormError } from "@/components/ui/FormError";
-import { RoomManagement } from "./RoomManageMent";
+
 import { DormInfoFields } from "./DormInfoDetail";
-import { RoomGenerator } from "./RoomGenerator";
-import { DormUtilityFields } from "../dorm/DormUtilityFields";
-import { DormAmenitiesFields } from "../dorm/DormAmenitiesFields";
+
+import { DormUtilityFields } from "../../dorm/[slug]/_components/DormUtilityFields";
+import { DormAmenitiesFields } from "../../dorm/[slug]/_components/DormAmenitiesFields";
 import { MapPicker } from "./MapPicker";
+import { RoomGenerator } from "./RoomGenerator";
+import { RoomManagement } from "./RoomManageMent";
 
 export function DormForm() {
     const router = useRouter();

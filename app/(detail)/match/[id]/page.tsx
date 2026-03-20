@@ -1,9 +1,9 @@
 import { checkMatchStatus, UIMatchStatus } from "@/app/action/matching";
 import { getRoommateReviews } from "@/app/action/roommate-review";
 import { getUserById, fetchCurrentUser } from "@/app/action/user"; 
-import RoommateProfileClient from "@/components/match/profile/RoommateProfileClient";
 import { getAuthUser } from "@/lib/auth";
 import { notFound } from "next/navigation";
+import RoommateProfileClient from "./_components/RoommateProfileClient";
 
 export default async function RoommateProfilePage({
   params,

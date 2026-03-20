@@ -2,8 +2,8 @@ import { prisma } from "@/lib/db";
 import { Users, Building2, Plus, ShieldCheck } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { StatCard } from "@/components/admin/StatCard";
-import { DormTable } from "@/components/admin/dorm/DormTable";
+import { StatCard } from "@/app/(main)/admin/_components/StatCard";
+import { DormTable } from "@/app/(detail)/admin/dorm/[slug]/_components/DormTable";
 
 export const dynamic = "force-dynamic";
 

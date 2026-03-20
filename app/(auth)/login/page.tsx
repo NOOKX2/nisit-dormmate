@@ -1,6 +1,6 @@
 "use client";
 
-import { AuthWrapper } from '@/components/auth/AuthWrapper';
+import { AuthWrapper } from '@/app/(auth)/_components/AuthWrapper';
 import { Button } from '@/components/ui/button';
 import { Mail, Lock } from 'lucide-react';
 import Link from 'next/link';
@@ -11,10 +11,10 @@ import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
 
 export default function LoginPage() {
-  const {login} = useAuth();
+  const { login } = useAuth();
   const router = useRouter();
   const [formData, setFormData] = useState({ email: '', password: '' });
-  const [isPending, setIsPending] = useState(false); 
+  const [isPending, setIsPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   // เปลี่ยนมาใช้ onSubmit เพื่อคุมสถานะฟอร์มให้แม่นยำขึ้นครับ
@@ -46,7 +46,7 @@ export default function LoginPage() {
     <AuthWrapper title="เข้าสู่ระบบ" subtitle="ยินดีต้อนรับกลับมาครับ">
       {/* 🟢 เปลี่ยนจาก action เป็น onSubmit */}
       <form className="space-y-4" onSubmit={handleSubmit}>
-        
+
         {/* 🔴 แสดง Error Message โดยใช้ Component ที่เราสร้าง */}
         <FormError message={error} />
 

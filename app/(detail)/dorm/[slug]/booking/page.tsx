@@ -1,6 +1,6 @@
+import { DormBookingContainer } from "@/app/(detail)/admin/dorm/[slug]/bookings/_components/DormBookingContainer";
 import { getDormBySlug } from "@/app/action/dorm";
 import { fetchCurrentUser } from "@/app/action/user";
-import { DormBookingContainer } from "@/components/booking/DormBookingContainer";
 import { redirect } from "next/navigation";
 
 export default async function DormBookingPage({

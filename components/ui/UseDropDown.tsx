@@ -49,7 +49,7 @@ export default function UserDropdown({ name, onClick }: UserDropdownProps) {
             />
 
             <DropdownItem 
-              href="/booking" 
+              href="/my-bookings" 
               icon={Home} 
               label="หอพักที่จองไว้" 
               onClick={closeDropdown} 

@@ -7,11 +7,11 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 
 import { processBookingAction } from "@/app/action/booking";
-import { BookingSummary } from "@/components/booking/confirm/BookingSummary";
-import { PaymentSelector } from "@/components/booking/confirm/PaymentSelector";
-import { PriceDetails } from "@/components/booking/confirm/PriceDetails";
+import { BookingSummary } from "@/app/(detail)/dorm/[slug]/booking/confirm/_components/BookingSummary";
+import { PaymentSelector } from "@/app/(detail)/dorm/[slug]/booking/confirm/_components/PaymentSelector";
+import { PriceDetails } from "@/app/(detail)/dorm/[slug]/booking/confirm/_components/PriceDetails";
 import { FormError } from "@/components/ui/FormError";
-import { ContactInfo } from "@/components/booking/confirm/ContactInfo";
+import { ContactInfo } from "@/app/(detail)/dorm/[slug]/booking/confirm/_components/ContactInfo";
 
 interface BookingConfirmClientProps {
     roomInfo: any;
@@ -46,7 +46,7 @@ export function BookingConfirmClient({ roomInfo, user, bookingParams }: BookingC
                 toast.success("จองสำเร็จ! ห้องถูกล็อคให้คุณเรียบร้อย");
                 router.push(`../booking/success?id=${result.bookingId}`);
                 // รีเฟรชข้อมูลเบื้องหลัง
-                router.refresh(); 
+                router.refresh();
             } else if (result && 'error' in result) {
                 setError(result?.error || "เกิดข้อผิดพลาด");
             }

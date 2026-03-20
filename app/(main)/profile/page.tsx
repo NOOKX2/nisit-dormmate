@@ -2,10 +2,10 @@ import { prisma } from '@/lib/db';
 import { cookies } from 'next/headers';
 import { jwtVerify } from 'jose';
 import { redirect } from 'next/navigation';
-import ProfileHeader from '@/components/profile/ProfileHeader';
-import ProfileStats from '@/components/profile/ProfileStats';
-import LifestyleCard from '@/components/profile/LifeStyleCard';
-import ActionMenu from '@/components/profile/ActionMenu';
+import ProfileHeader from '@/app/(main)/profile/_components/ProfileHeader';
+import ProfileStats from '@/app/(main)/profile/_components/ProfileStats';
+import LifestyleCard from '@/app/(main)/profile/_components/LifeStyleCard';
+import ActionMenu from '@/app/(main)/profile/_components/ActionMenu';
 
 const SECRET = new TextEncoder().encode(process.env.JWT_SECRET || "");
 

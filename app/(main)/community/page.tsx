@@ -1,5 +1,5 @@
 import { getPosts } from "@/app/action/feed";
-import { CommunityContainer } from "@/components/community/CommunityContainer";
+import { CommunityContainer } from "@/app/(main)/community/_components/CommunityContainer";
 import { getAuthUser } from "@/lib/auth";
 import { redirect } from "next/navigation";
 

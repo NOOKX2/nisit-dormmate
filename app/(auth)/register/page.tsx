@@ -1,6 +1,6 @@
 "use client";
 
-import { AuthWrapper } from '@/components/auth/AuthWrapper';
+import { AuthWrapper } from '@/app/(auth)/_components/AuthWrapper';
 import { Button } from '@/components/ui/button';
 import { Mail, Lock, User } from 'lucide-react';
 import Link from 'next/link';
@@ -52,7 +52,7 @@ export default function RegisterPage() {
         {/* --- หมวดชื่อ-นามสกุล --- */}
         <div className="space-y-1.5">
           <label className="text-sm font-semibold text-gray-700">ชื่อ-นามสกุล</label>
-          
+
           {/* 🟢 3. เปลี่ยนจาก flex เป็น grid เพื่อให้แบ่ง 2 ช่องเท่าๆ กัน (Mobile-friendly) */}
           <div className="grid grid-cols-2 gap-3">
             {/* ช่องชื่อจริง (มี Icon) */}
@@ -66,10 +66,10 @@ export default function RegisterPage() {
                 // เพิ่ม focus:ring และ focus:border ให้ดูพรีเมียมเวลาคลิก
                 className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm outline-none transition-all focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 focus:bg-white"
                 placeholder="ชื่อจริง"
-                required 
+                required
               />
             </div>
-            
+
             {/* ช่องนามสกุล (ไม่มี Icon จะได้ดูคลีนๆ) */}
             <div className="relative">
               <input
@@ -79,7 +79,7 @@ export default function RegisterPage() {
                 onChange={handleChange}
                 className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm outline-none transition-all focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 focus:bg-white"
                 placeholder="นามสกุล"
-                required 
+                required
               />
             </div>
           </div>
@@ -90,14 +90,14 @@ export default function RegisterPage() {
           <label className="text-sm font-semibold text-gray-700">อีเมลมหาวิทยาลัย</label>
           <div className="relative">
             <Mail className="absolute left-3 top-3.5 text-gray-400" size={18} />
-            <input 
+            <input
               name="email"
               type="email"
               value={formData.email}
               onChange={handleChange}
               className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm outline-none transition-all focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 focus:bg-white"
               placeholder="b6xxxxxxxxx@ku.th"
-              required 
+              required
             />
           </div>
         </div>
@@ -115,7 +115,7 @@ export default function RegisterPage() {
               className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm outline-none transition-all focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 focus:bg-white"
               placeholder="••••••••"
               minLength={5} // เพิ่ม minLength กันคนตั้งรหัสผ่านสั้นเกินไป
-              required 
+              required
             />
           </div>
         </div>
