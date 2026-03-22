@@ -1,19 +1,20 @@
 import { Building, MapPin, Image as ImageIcon } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import UploadDormImage from "@/app/(detail)/admin/add-dorm/_components/UploadDormImage";
 
 interface DormInfoProps {
   formData: any;
   onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
+  onFileSelect: (file: File | null, previewUrl: string) => void;
 }
 
-export function DormInfoFields({ formData, onChange }: DormInfoProps) {
+export function DormInfoFields({ formData, onChange, onFileSelect }: DormInfoProps) {
   return (
     <div className="grid gap-6">
       <FormField label="ชื่อหอพัก" icon={<Building size={16} />} name="name" value={formData.name} onChange={onChange} placeholder="เช่น หอพักนิสิตอินเตอร์" />
       <FormField label="พิกัด (ซอย/ถนน)" icon={<MapPin size={16} />} name="locationShort" value={formData.locationShort} onChange={onChange} placeholder="เช่น ซอยพหลโยธิน 45" />
-      <FormField label="URL รูปภาพหน้าปก" icon={<ImageIcon size={16} />} name="imageUrl" value={formData.imageUrl} onChange={onChange} placeholder="https://..." />
-
+      <UploadDormImage initialUrl={formData.imageUrl || undefined} onFileSelect={onFileSelect} />
       <div className="space-y-2">
         <label className="text-sm font-bold text-gray-700">รายละเอียดเพิ่มเติม</label>
         <Textarea

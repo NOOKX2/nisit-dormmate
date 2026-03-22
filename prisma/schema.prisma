@@ -249,3 +249,11 @@ model MatchRequest {
   // 🛡️ ป้องกันการส่งคำขอซ้ำ! คู่เดิมจะส่งคำขอได้แค่ 1 รายการเท่านั้น
   @@unique([senderId, receiverId])
 }
+
+// 📁 ข้อมูลไฟล์ที่อัปโหลด (สำหรับระบบ Deduplication)
+model UploadedImage {
+  id       String   @id @default(cuid())
+  fileHash String   @unique
+  url      String
+  createdAt DateTime @default(now())
+}

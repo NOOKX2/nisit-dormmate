@@ -6,9 +6,10 @@ import { Loader2, Wand2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { createDormAction } from "@/app/action/dorm";
+import { uploadDormImageToR2 } from "@/lib/uploadDormImageClient";
 import { FormError } from "@/components/ui/FormError";
 
-import { DormInfoFields } from "./DormInfoDetail";
+import { DormInfoFields } from "./DormInfoFields";
 
 import { DormUtilityFields } from "../../dorm/[slug]/_components/DormUtilityFields";
 import { DormAmenitiesFields } from "../../dorm/[slug]/_components/DormAmenitiesFields";
@@ -40,6 +41,7 @@ export function DormForm() {
     ]);
 
     const [amenities, setAmenities] = useState<string[]>([]);
+    const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
     const handleBulkGenerate = (generatedRooms: any[]) => {
         setRooms((prev) => {
@@ -60,9 +62,25 @@ export function DormForm() {
         setIsPending(true);
         setError(null);
 
+        let imageUrl = formData.imageUrl;
+        if (selectedFile) {
+            try {
+                imageUrl = await uploadDormImageToR2(selectedFile);
+            } catch (err) {
+                console.error(err);
+                const message =
+                    err instanceof Error ? err.message : "อัปโหลดรูปไม่สำเร็จ";
+                setError(message);
+                toast.error(message);
+                setIsPending(false);
+                return;
+            }
+        }
+
         const data = new FormData();
+        const payload = { ...formData, imageUrl };
         // 🟢 แปลง value เป็น String ก่อนยัดลง FormData ป้องกัน Error ตัวเลขพิกัด
-        Object.entries(formData).forEach(([key, value]) => data.append(key, String(value)));
+        Object.entries(payload).forEach(([key, value]) => data.append(key, String(value)));
 
         const validPrices = rooms
             .map(room => parseFloat(room.price))
@@ -97,7 +115,11 @@ export function DormForm() {
 
             <div className="grid gap-6">
                 {/* 1. ส่วนข้อมูลหอพักพื้นฐาน */}
-                <DormInfoFields formData={formData} onChange={handleChange} />
+                <DormInfoFields
+                    formData={formData}
+                    onChange={handleChange}
+                    onFileSelect={(file) => setSelectedFile(file)}
+                />
 
                 {/* 2. ตำแหน่งที่ตั้งและแผนที่ */}
                 <div className="space-y-4 bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">

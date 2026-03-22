@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { updateDormBaseInfo } from "@/app/action/dorm";
+import { uploadDormImageToR2 } from "@/lib/uploadDormImageClient";
 import { toast } from "sonner";
 import { DormImageSection } from "./DormImageSection";
 import { FormInput } from "./FormInput";
@@ -18,6 +19,7 @@ interface EditDormFormProps {
 export function EditDormForm({ dorm }: EditDormFormProps) {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
   const [formData, setFormData] = useState({
     name: dorm.name || "",
@@ -53,7 +55,21 @@ export function EditDormForm({ dorm }: EditDormFormProps) {
     e.preventDefault();
     setIsSubmitting(true);
 
-    const result = await updateDormBaseInfo(dorm.id, formData);
+    let imageUrl = formData.imageUrl;
+    if (selectedFile) {
+      try {
+        imageUrl = await uploadDormImageToR2(selectedFile);
+      } catch (err) {
+        console.error(err);
+        toast.error(
+          err instanceof Error ? err.message : "อัปโหลดรูปไม่สำเร็จ",
+        );
+        setIsSubmitting(false);
+        return;
+      }
+    }
+
+    const result = await updateDormBaseInfo(dorm.id, { ...formData, imageUrl });
 
     if (result.success) {
       toast.success("บันทึกข้อมูลสำเร็จ!");
@@ -62,14 +78,17 @@ export function EditDormForm({ dorm }: EditDormFormProps) {
     } else {
       toast.error(result.error || "เกิดข้อผิดพลาด");
     }
-    
+
     setIsSubmitting(false);
   };
 
   return (
     <form onSubmit={handleSubmit} className="bg-white p-6 md:p-8 rounded-3xl border border-gray-100 shadow-sm space-y-6 overflow-hidden">
       
-      <DormImageSection imageUrl={formData.imageUrl} onChange={handleChange} />
+      <DormImageSection
+        imageUrl={formData.imageUrl}
+        onFileSelect={(file) => setSelectedFile(file)}
+      />
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4">
         <FormInput 
