@@ -1,47 +1,76 @@
-import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
-import { jwtVerify } from 'jose';
+import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
+import { jwtVerify } from "jose";
 
-// ต้องเป็น Secret ตัวเดียวกับใน loginAction นะครับ
-const SECRET = new TextEncoder().encode(process.env.JWT_SECRET);
+const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET);
+
+function sessionSecretBytes(): Uint8Array {
+  const raw = process.env.SESSION_SECRET || process.env.JWT_SECRET;
+  return new TextEncoder().encode(raw || "");
+}
+
+type JwtPayload = { role?: string };
+
+async function verifySessionToken(
+  token: string,
+): Promise<JwtPayload | null> {
+  const secret = sessionSecretBytes();
+  if (!secret.length) return null;
+  try {
+    const { payload } = await jwtVerify(token, secret);
+    return payload as JwtPayload;
+  } catch {
+    return null;
+  }
+}
+
+async function verifyAuthToken(token: string): Promise<JwtPayload | null> {
+  if (!JWT_SECRET.length) return null;
+  try {
+    const { payload } = await jwtVerify(token, JWT_SECRET);
+    return payload as JwtPayload;
+  } catch {
+    return null;
+  }
+}
+
+async function getRoleFromCookies(request: NextRequest): Promise<string | null> {
+  const sessionTok = request.cookies.get("session_token")?.value;
+  if (sessionTok) {
+    const p = await verifySessionToken(sessionTok);
+    if (p?.role) return p.role;
+  }
+  const authTok = request.cookies.get("auth_token")?.value;
+  if (authTok) {
+    const p = await verifyAuthToken(authTok);
+    if (p?.role) return p.role;
+  }
+  return null;
+}
 
 export async function middleware(request: NextRequest) {
-    const { pathname } = request.nextUrl;
-    
-    // 1. ดึง token จาก cookie ที่คุณตั้งชื่อว่า 'auth_token'
-    const token = request.cookies.get('auth_token')?.value;
+  const { pathname } = request.nextUrl;
 
-    if (!token) {
-        // ถ้าไม่มี token และพยายามเข้าหน้า admin ให้ดีดกลับหน้าแรก
-        if (pathname.startsWith('/admin')) {
-            return NextResponse.redirect(new URL('/', request.url));
-        }
-        return NextResponse.next();
+  const role = await getRoleFromCookies(request);
+
+  if (!role) {
+    if (pathname.startsWith("/admin") || pathname.startsWith("/dashboard")) {
+      return NextResponse.redirect(new URL("/login", request.url));
     }
-
-    try {
-        // 2. ถอดรหัส JWT
-        const { payload } = await jwtVerify(token, SECRET);
-        
-        // 3. เช็ก Role (คุณต้องอย่าลืมใส่ role ลงใน Payload ตอน Login ด้วยนะครับ!)
-        const role = payload.role as string;
-
-        if (pathname === '/' && role === 'ADMIN') {
-            return NextResponse.redirect(new URL('/admin', request.url));
-        }
-
-        if (pathname.startsWith('/admin') && role !== 'ADMIN') {
-            return NextResponse.redirect(new URL('/', request.url));
-        }
-
-    } catch (error) {
-        // ถ้า token ปลอมหรือหมดอายุ
-        return NextResponse.redirect(new URL('/', request.url));
-    }
-
     return NextResponse.next();
+  }
+
+  if (pathname === "/" && role === "ADMIN") {
+    return NextResponse.redirect(new URL("/admin", request.url));
+  }
+
+  if (pathname.startsWith("/admin") && role !== "ADMIN") {
+    return NextResponse.redirect(new URL("/", request.url));
+  }
+
+  return NextResponse.next();
 }
 
 export const config = {
-    matcher: ['/', '/admin/:path*'],
+  matcher: ["/", "/admin/:path*", "/dashboard", "/dashboard/:path*"],
 };

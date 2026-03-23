@@ -1,14 +1,15 @@
 "use client";
 
-import { AuthWrapper } from '@/app/(auth)/_components/AuthWrapper';
-import { Button } from '@/components/ui/button';
-import { Mail, Lock } from 'lucide-react';
-import Link from 'next/link';
-import { useState } from 'react';
-import { loginAction } from '../../action/login';
-import { FormError } from '@/components/ui/FormError'; // อย่าลืม Import Component Error ที่เราสร้างไว้ครับ
-import { useAuth } from '@/context/AuthContext';
-import { useRouter } from 'next/navigation';
+import { Suspense, useState } from "react";
+import { AuthWrapper } from "@/app/(auth)/_components/AuthWrapper";
+import { Button } from "@/components/ui/button";
+import { Mail, Lock } from "lucide-react";
+import Link from "next/link";
+import { loginAction } from "../../action/login";
+import { FormError } from "@/components/ui/FormError";
+import { useAuth } from "@/context/AuthContext";
+import { useRouter } from "next/navigation";
+import { GoogleOAuthErrorBanner } from "./google-oauth-error";
 
 export default function LoginPage() {
   const { login } = useAuth();
@@ -44,10 +45,11 @@ export default function LoginPage() {
 
   return (
     <AuthWrapper title="เข้าสู่ระบบ" subtitle="ยินดีต้อนรับกลับมาครับ">
-      {/* 🟢 เปลี่ยนจาก action เป็น onSubmit */}
-      <form className="space-y-4" onSubmit={handleSubmit}>
+      <Suspense fallback={null}>
+        <GoogleOAuthErrorBanner />
+      </Suspense>
 
-        {/* 🔴 แสดง Error Message โดยใช้ Component ที่เราสร้าง */}
+      <form className="space-y-4" onSubmit={handleSubmit}>
         <FormError message={error} />
 
         <div className="space-y-1.5">
@@ -88,12 +90,12 @@ export default function LoginPage() {
         <Button
           type="submit"
           disabled={isPending}
-          className="w-full py-6 mt-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl transition-all disabled:opacity-70"
+          className="mt-4 w-full rounded-xl bg-emerald-600 py-6 text-white transition-all hover:bg-emerald-700 disabled:opacity-70"
         >
           {isPending ? "กำลังเข้าสู่ระบบ..." : "เข้าสู่ระบบ"}
         </Button>
 
-        <p className="text-center text-sm text-gray-500 mt-6">
+        <p className="mt-6 text-center text-sm text-gray-500">
           ยังไม่มีบัญชี? <Link href="/register" className="text-emerald-600 font-semibold hover:underline">สมัครสมาชิก</Link>
         </p>
       </form>

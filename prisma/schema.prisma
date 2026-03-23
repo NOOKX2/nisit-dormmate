@@ -57,6 +57,20 @@ model User {
 
   sentMatches     MatchRequest[] @relation("SentMatches")
   receivedMatches MatchRequest[] @relation("ReceivedMatches")
+
+  sessions        UserSession[]
+}
+
+// เซสชันจาก Google OAuth (และ flow อื่นที่ใช้ session_token cookie)
+model UserSession {
+  id        String   @id @default(cuid())
+  jti       String   @unique
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([userId])
 }
 
 // 🏢 ข้อมูลหอพัก

@@ -1,6 +1,12 @@
-import { Building2 } from 'lucide-react';
-import Link from 'next/link';
-import { ReactNode } from 'react';
+"use client";
+
+import { Building2 } from "lucide-react";
+import Link from "next/link";
+import { ReactNode } from "react";
+
+function startGoogleOAuth() {
+  window.location.assign("/api/auth/google/start");
+}
 
 interface AuthWrapperProps {
   children: ReactNode;
@@ -43,10 +49,10 @@ export function AuthWrapper({ children, title, subtitle }: AuthWrapperProps) {
         </div>
 
         {/* 🌐 Google Auth Button */}
-        <button 
+        <button
           type="button"
-          onClick={() => {/* TODO: Implement Google Login */}}
-          className="w-full flex items-center justify-center gap-3 py-3 px-4 border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors duration-200 shadow-sm"
+          onClick={startGoogleOAuth}
+          className="flex w-full items-center justify-center gap-3 rounded-xl border border-gray-200 px-4 py-3 shadow-sm transition-colors duration-200 hover:bg-gray-50"
         >
           <svg className="w-5 h-5" viewBox="0 0 24 24">
             <path
