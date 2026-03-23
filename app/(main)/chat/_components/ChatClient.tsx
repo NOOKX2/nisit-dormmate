@@ -3,10 +3,12 @@
 import { useState, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { getMessages, sendMessage } from "@/app/action/chat";
-// 🟢 1. Import Server Action และ Type ของ Match Status เข้ามา
 import { checkMatchStatus, UIMatchStatus } from "@/app/action/matching"; 
 import { ChatArea } from "./ChatArea";
 import { ContactList } from "./ContactList";
+
+// 🌟 1. Import ตัวดักฟังของ Pusher เข้ามา
+import { pusherClient } from "@/lib/pusher"; 
 
 interface Contact {
   id: string;
@@ -20,11 +22,9 @@ export function ChatClient({ currentUserId, initialContacts }: { currentUserId: 
   const [contacts, setContacts] = useState<Contact[]>(initialContacts);
   const [activeContact, setActiveContact] = useState<Contact | null>(null);
   const [messages, setMessages] = useState<any[]>([]);
-  
-  // 🌟 2. สร้าง State สำหรับเก็บสถานะ Match ของคนที่กำลังคุยอยู่
   const [contactMatchStatus, setContactMatchStatus] = useState<UIMatchStatus>('NONE');
 
-  // 1. รับค่าจาก URL (เวลาทักมาจากหน้า Profile)
+  // รับค่าจาก URL
   useEffect(() => {
     const newUserId = searchParams.get("userId");
     const newUserName = searchParams.get("name");
@@ -33,7 +33,6 @@ export function ChatClient({ currentUserId, initialContacts }: { currentUserId: 
       const newContact = { id: newUserId, name: newUserName };
       setActiveContact(newContact);
       setContacts(prev => {
-        // ป้องกันการแอดซ้ำถ้ามีอยู่แล้ว
         const exists = prev.find(c => c.id === newUserId);
         if (exists) return prev;
         return [newContact, ...prev.filter(c => c.id !== newUserId)];
@@ -41,40 +40,66 @@ export function ChatClient({ currentUserId, initialContacts }: { currentUserId: 
     }
   }, [searchParams]);
 
-  // 2. ดึงข้อความแชท (Polling ทุก 2 วินาที)
+  // ดึงข้อความแชท (โหลดแค่ครั้งเดียวตอนเปิดห้องแชท)
   const fetchChat = async () => {
     if (!currentUserId || !activeContact?.id) return;
     const data = await getMessages(currentUserId, activeContact.id);
     setMessages(data);
   };
 
-  // 🌟 3. ดึงสถานะการ Match (ยิง Action เมื่อเปลี่ยนคนคุย)
+  // ดึงสถานะการ Match
   const fetchMatchStatus = async () => {
     if (!currentUserId || !activeContact?.id) return;
     try {
       const status = await checkMatchStatus(currentUserId, activeContact.id);
       setContactMatchStatus(status);
-
     } catch (error) {
       console.error("Failed to fetch match status:", error);
-      setContactMatchStatus('NONE'); // ถ้าพังให้ fallback กลับเป็นค่าเริ่มต้น
+      setContactMatchStatus('NONE');
     }
   };
 
+  // 🌟 2. อัปเกรด useEffect ให้ใช้ Pusher แทน setInterval
   useEffect(() => {
     if (activeContact) {
       fetchChat();
-      fetchMatchStatus(); // 🟢 เรียกใช้เมื่อกดเปลี่ยนคนคุย
+      fetchMatchStatus(); 
 
-      const interval = setInterval(fetchChat, 2000);
-      return () => clearInterval(interval);
+      // --- เริ่มการทำงานของ Pusher ---
+      // 1. สร้างชื่อห้อง (ให้ตรงกับฝั่ง Server)
+      const roomId = [currentUserId, activeContact.id].sort().join('-');
+      
+      // 2. หมุนคลื่นไปรอฟังที่ห้องนั้น
+      pusherClient.subscribe(roomId);
+
+      // 3. ฟังก์ชันจัดการข้อความใหม่ที่เด้งเข้ามา
+      const messageHandler = (newMessage: any) => {
+        setMessages((prevMessages) => {
+          // เช็กว่าข้อความซ้ำไหม (ป้องกันเวลาเราส่งเองแล้วมันเบิ้ล)
+          const isDuplicate = prevMessages.some((msg) => msg.id === newMessage.id);
+          if (isDuplicate) return prevMessages;
+          
+          return [...prevMessages, newMessage];
+        });
+      };
+
+      // 4. ผูกหูฟังเข้ากับเหตุการณ์
+      pusherClient.bind('incoming-message', messageHandler);
+
+      // 5. ถอดหูฟังออกเวลาเปลี่ยนคนคุย (Cleanup)
+      return () => {
+        pusherClient.unsubscribe(roomId);
+        pusherClient.unbind('incoming-message', messageHandler);
+      };
+      // --- จบการทำงานของ Pusher ---
     }
-  }, [activeContact]);
+  }, [activeContact, currentUserId]); 
 
   const handleSendMessage = async (text: string) => {
     if (!activeContact) return;
+    // 🌟 3. ยิงข้อความขึ้น Server (เดี๋ยว Server จะตะโกนบอก Pusher เอง)
     await sendMessage(currentUserId, activeContact.id, text);
-    fetchChat();
+    
   };
 
 
@@ -87,7 +112,6 @@ export function ChatClient({ currentUserId, initialContacts }: { currentUserId: 
         onBack={() => router.back()} 
       />
       
-      {/* 🌟 4. โยนสถานะที่เพิ่งดึงมาได้ ลงไปให้ ChatArea */}
       <ChatArea 
         currentUserId={currentUserId} 
         activeContact={activeContact} 

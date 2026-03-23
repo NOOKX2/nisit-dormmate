@@ -1,6 +1,7 @@
 "use server";
 
 import { prisma } from "@/lib/db";
+import { pusherServer } from "@/lib/pusher";
 
 export async function getMessages(userId1: string, userId2: string) {
   try {
@@ -22,6 +23,7 @@ export async function getMessages(userId1: string, userId2: string) {
 
 export async function sendMessage(senderId: string, receiverId: string, text: string) {
   try {
+    // 1. บันทึกข้อความลง Database (โค้ดเดิม)
     const newMessage = await prisma.message.create({
       data: {
         senderId,
@@ -29,7 +31,17 @@ export async function sendMessage(senderId: string, receiverId: string, text: st
         text,
       },
     });
+
+    // 🌟 2. สร้าง "ชื่อห้องแชท" ให้ 2 คนนี้ โดยเอา ID มาเรียงตามตัวอักษร
+    // (เทคนิคนี้ทำให้ ไม่ว่า A ทัก B หรือ B ทัก A ก็จะได้ชื่อห้องเดียวกันเป๊ะๆ!)
+    const roomId = [senderId, receiverId].sort().join('-');
+
+    // 🌟 3. สั่ง Pusher ให้กระจายข่าว! (ใช้ await เพื่อให้ชัวร์ว่าส่งสำเร็จ)
+    await pusherServer.trigger(roomId, 'incoming-message', newMessage);
+
+    // 4. รีเทิร์นค่ากลับไปแบบเดิม
     return newMessage;
+    
   } catch (error) {
     console.error("Error sending message:", error);
     throw new Error("Failed to send message");
