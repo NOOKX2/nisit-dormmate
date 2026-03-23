@@ -159,7 +159,7 @@ export async function createDormAction(formData: FormData) {
 
     } catch (error: any) {
         console.error("Dorm Creation Error:", error);
-        return { error: `ไม่สามารถบันทึกข้อมูลได้ ` };
+       return { error: `DB Error: ${error.message || "Unknown error"}` };
     }
 }
 
