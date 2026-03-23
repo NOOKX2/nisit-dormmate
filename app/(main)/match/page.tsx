@@ -1,14 +1,24 @@
 import { getAuthUser } from '@/lib/auth'
-import { getPotentialMatches } from '../../action/matching';
+import { checkMatchStatus, getPotentialMatches, UIMatchStatus } from '../../action/matching';
 import MatchListClient from '@/app/(main)/match/_components/MatchListClient';
 
 export default async function MatchPage() {
   // 🟢 Fetch ข้อมูลที่ฝั่ง Server ทันที
-  const [matches, currentUser] = await Promise.all([
+  const [matchUsers, currentUser] = await Promise.all([
     getPotentialMatches(),
     getAuthUser(),
   ]);
 
+  const matchStatus: Record<string, UIMatchStatus> = {};
+
+  if (currentUser && matchUsers.length > 0) {
+    await Promise.all(
+      matchUsers.map(async (targetUser) => {
+        const status = await checkMatchStatus(currentUser.id, targetUser.id);
+        matchStatus[targetUser.id] = status;
+      })
+    )
+  }
 
   return (
     <div className="max-w-4xl mx-auto p-6">
@@ -19,8 +29,9 @@ export default async function MatchPage() {
 
       {/* 🔵 ส่งข้อมูลลงไปให้ Client Component จัดการต่อ */}
       <MatchListClient
-        initialMatches={matches}
+        initialMatches={matchUsers}
         currentUser={currentUser}
+        matchStatus={matchStatus}
       />
     </div>
   )

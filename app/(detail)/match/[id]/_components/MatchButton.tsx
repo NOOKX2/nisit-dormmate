@@ -1,20 +1,28 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Handshake, Clock, UserCheck, CheckCircle2, Loader2 } from "lucide-react";
 import { sendMatchRequest, UIMatchStatus } from "@/app/action/matching";
-// 🟢 อย่าลืม import Server Actions ของท่านประธานมาใช้นะครับ (แก้ path ให้ตรงกับโปรเจกต์)
-
 
 interface MatchButtonProps {
   currentUserId?: string;
   targetUserId: string;
   initialMatchStatus: UIMatchStatus;
+  variant?: 'default' | 'chat'; // 🌟 1. เพิ่ม Prop ให้เลือกได้ว่าเป็นปุ่มใหญ่หรือปุ่มเล็กในแชท
 }
 
-export function MatchButton({ currentUserId, targetUserId, initialMatchStatus }: MatchButtonProps) {
+export function MatchButton({ 
+  currentUserId, 
+  targetUserId, 
+  initialMatchStatus,
+  variant = 'default' // ค่าเริ่มต้นคือปุ่มใหญ่ปกติ
+}: MatchButtonProps) {
   const [status, setStatus] = useState(initialMatchStatus);
   const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    setStatus(initialMatchStatus);
+  }, [initialMatchStatus]);
 
   const handleAction = async () => {
     if (!currentUserId) {
@@ -25,18 +33,15 @@ export function MatchButton({ currentUserId, targetUserId, initialMatchStatus }:
     setIsLoading(true);
 
     try {
-      // ไม่ว่าสถานะจะเป็น NONE หรือ RECEIVED เราสามารถใช้ sendMatchRequest ตัวเดียวจบเลย!
       if (status === 'NONE' || status === 'RECEIVED') {
-        
-        // 1. Optimistic UI: เปลี่ยนสีปุ่มไปล่วงหน้าให้ดูไวๆ
+        // Optimistic UI: เปลี่ยนสีปุ่มไปล่วงหน้า
         const nextStatus = status === 'NONE' ? 'SENT' : 'MATCHED';
         setStatus(nextStatus); 
         
-        // 2. เรียก Server Action สุดฉลาดของท่านประธาน
+        // เรียก Server Action
         const result = await sendMatchRequest(currentUserId, targetUserId);
         
         if (result.success) {
-     
           setStatus(result.status as UIMatchStatus); 
         } else {
           setStatus(initialMatchStatus);
@@ -57,36 +62,37 @@ export function MatchButton({ currentUserId, targetUserId, initialMatchStatus }:
       case 'NONE':
         return {
           text: "ชวนเป็นเมท",
-          icon: <Handshake size={18} />,
-          className: "bg-[#4CAF50] text-white hover:bg-[#43a047] shadow-sm hover:shadow-md",
+          icon: <Handshake />,
+          className: "bg-emerald-400 text-white hover:bg-emerald-500 shadow-sm hover:shadow-md",
           disabled: false
         };
       case 'SENT':
         return {
           text: "รอการยืนยัน...",
-          icon: <Clock size={18} />,
+          icon: <Clock />,
           className: "bg-gray-100 text-gray-500 cursor-not-allowed border border-gray-200",
           disabled: true
         };
       case 'RECEIVED':
         return {
           text: "กดยอมรับเป็นเมท",
-          icon: <UserCheck size={18} />,
+          icon: <UserCheck />,
           className: "bg-emerald-100 text-emerald-700 hover:bg-emerald-200 border border-emerald-300 shadow-sm",
           disabled: false
         };
       case 'MATCHED':
         return {
           text: "รูมเมทของคุณ",
-          icon: <CheckCircle2 size={18} />,
+          icon: <CheckCircle2 />,
           className: "bg-gradient-to-r from-emerald-400 to-green-500 text-white cursor-default shadow-md",
           disabled: true
         };
       default:
         return {
           text: "ชวนเป็นเมท",
-          icon: <Handshake size={18} />,
-          className: "bg-[#4CAF50] text-white hover:bg-[#43a047]",
+          icon: <Handshake />,
+          // 🟢 2. เปลี่ยนสี Default จาก #4CAF50 เป็น emerald ให้ตรงธีมทั้งโปรเจกต์
+          className: "bg-emerald-400 text-white hover:bg-emerald-500",
           disabled: false
         };
     }
@@ -94,23 +100,33 @@ export function MatchButton({ currentUserId, targetUserId, initialMatchStatus }:
 
   const config = getButtonConfig();
 
+  // 🌟 3. กำหนดสไตล์แยกตาม variant
+  const sizeClasses = variant === 'chat' 
+    ? "px-4 py-2 rounded-full text-xs gap-1.5" // ไซส์มินิสำหรับ Header หน้า Chat
+    : "flex-1 py-3.5 px-6 rounded-2xl text-[15px] gap-2.5 w-full"; // ไซส์ใหญ่สำหรับหน้า Profile/MatchList
+
+  // ปรับขนาดไอคอนให้เข้ากับขนาดปุ่ม
+  const iconSize = variant === 'chat' ? 14 : 18; 
+
   return (
     <button 
       onClick={handleAction}
       disabled={config.disabled || isLoading}
       className={`
-        flex-1 py-3.5 px-6 rounded-2xl text-[15px] font-bold transition-all duration-200 
-        flex items-center justify-center gap-2.5 active:scale-[0.98] w-full
+        font-bold transition-all duration-200 flex items-center justify-center active:scale-[0.98]
+        ${sizeClasses}
         ${config.className}
         ${isLoading ? 'opacity-70 cursor-wait' : ''}
       `}
     >
       {isLoading ? (
-        <Loader2 size={18} className="animate-spin" />
+        <Loader2 size={iconSize} className="animate-spin" />
       ) : (
-        config.icon
+        // ดึง Icon มาวาดใหม่พร้อมยัดขนาด (iconSize) ลงไปแบบไดนามิก
+        <config.icon.type {...config.icon.props} size={iconSize} /> 
       )}
-      <span>{isLoading ? "กำลังดำเนินการ..." : config.text}</span>
+      {/* ถ้าอยู่หน้า Chat และกำลังโหลด ให้ขึ้นข้อความสั้นๆ จะได้ไม่ล้นจอ */}
+      <span>{isLoading ? (variant === 'chat' ? "รอ..." : "กำลังดำเนินการ...") : config.text}</span>
     </button>
   );
 }

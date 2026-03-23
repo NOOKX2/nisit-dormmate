@@ -1,5 +1,10 @@
+"use client";
+
 import { useState, useRef, useEffect } from "react";
-import { Send, User, ChevronLeft, MessageSquareText, Handshake, CheckCircle2 } from "lucide-react";
+import { Send, User, ChevronLeft, MessageSquareText } from "lucide-react";
+import { UIMatchStatus } from "@/app/action/matching";
+// 🟢 1. Import MatchButton ของจริงเข้ามา (ตรวจสอบ Path ให้ตรงกับโปรเจกต์ของท่านประธานนะครับ)
+import { MatchButton } from "@/app/(detail)/match/[id]/_components/MatchButton";
 
 interface Contact {
   id: string;
@@ -10,14 +15,23 @@ interface ChatAreaProps {
   currentUserId: string;
   activeContact: Contact | null;
   messages: any[];
+  contactMatchStatus: UIMatchStatus; // 🟢 รับสถานะมาจากหน้าหลัก
   onClearContact: () => void;
   onSendMessage: (text: string) => Promise<void>;
 }
 
-export function ChatArea({ currentUserId, activeContact, messages, onClearContact, onSendMessage }: ChatAreaProps) {
+export function ChatArea({ 
+  currentUserId, 
+  activeContact, 
+  messages, 
+  contactMatchStatus, // 🟢 2. ดึง Prop ออกมาใช้งาน
+  onClearContact, 
+  onSendMessage 
+}: ChatAreaProps) {
   const [text, setText] = useState("");
-  const [matchStatus, setMatchStatus] = useState<'none' | 'pending' | 'matched'>('none');
   const scrollRef = useRef<HTMLDivElement>(null);
+
+  // ❌ ลบ State matchStatus และ handleMatchRequest แบบเก่าทิ้งไปเลย เพราะ Component ลูกจัดการให้หมดแล้ว
 
   useEffect(() => {
     if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
@@ -29,12 +43,6 @@ export function ChatArea({ currentUserId, activeContact, messages, onClearContac
     const tempText = text;
     setText("");
     await onSendMessage(tempText);
-  };
-
-  const handleMatchRequest = () => {
-    // จำลองการส่งคำขอ
-    setMatchStatus('pending');
-    alert(`ส่งคำขอจับคู่ถึง ${activeContact?.name} แล้ว!`);
   };
 
   return (
@@ -61,20 +69,15 @@ export function ChatArea({ currentUserId, activeContact, messages, onClearContac
               </div>
             </div>
 
-            {/* ปุ่มจับคู่รูมเมท */}
-            <button 
-              onClick={handleMatchRequest}
-              disabled={matchStatus !== 'none'}
-              className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold transition-all border shadow-sm ${
-                matchStatus === 'none' ? 'bg-emerald-50 text-emerald-700 border-emerald-100 hover:bg-emerald-100' :
-                matchStatus === 'pending' ? 'bg-gray-50 text-gray-400 border-gray-100 cursor-not-allowed' :
-                'bg-emerald-600 text-white border-emerald-600'
-              }`}
-            >
-              {matchStatus === 'none' && <><Handshake size={16} /> <span>จับคู่เมท</span></>}
-              {matchStatus === 'pending' && <><span className="w-2 h-2 bg-gray-300 animate-pulse rounded-full" /> <span>รอการยืนยัน...</span></>}
-              {matchStatus === 'matched' && <><CheckCircle2 size={16} /> <span>Match แล้ว</span></>}
-            </button>
+            {/* 🌟 3. ใช้ MatchButton ของจริง พร้อมตั้งโหมดเป็นหน้าแชท (variant="chat") */}
+            <div className="shrink-0 ml-2">
+              <MatchButton 
+                currentUserId={currentUserId}
+                targetUserId={activeContact.id}
+                initialMatchStatus={contactMatchStatus}
+                variant="chat"
+              />
+            </div>
           </div>
 
           {/* Chat Messages */}

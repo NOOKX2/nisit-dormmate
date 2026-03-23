@@ -150,3 +150,22 @@ export async function getRoommateDashboardData(userId: string) {
         return { success: false, matched: [], receivedRequests: [], sentRequests: [] }; 
     }
 }
+
+export async function cancelMatchRequest(requestId: string) {
+  try {
+    // สั่งลบข้อมูลการ Match จาก Database ด้วย ID
+    await prisma.matchRequest.delete({
+      where: {
+        id: requestId,
+      },
+    });
+
+    // 🌟 สั่งให้ Next.js เคลียร์แคชหน้าเว็บ เพื่อให้ UI อัปเดตทันที
+    revalidatePath("/my-roommate"); 
+    
+    return { success: true };
+  } catch (error) {
+    console.error("Error canceling match:", error);
+    return { success: false, error: "เกิดข้อผิดพลาด ไม่สามารถยกเลิกคำขอได้" };
+  }
+}

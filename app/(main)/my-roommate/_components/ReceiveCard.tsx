@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Loader2 } from "lucide-react";
+// 🟢 1. Import UserCircle เพิ่มเข้ามา
+import { Loader2, UserCircle } from "lucide-react"; 
 
 interface ReceivedCardProps {
   requestId: string;
@@ -12,10 +13,8 @@ interface ReceivedCardProps {
 export function ReceivedCard({ requestId, senderName, senderImage }: ReceivedCardProps) {
   const [isLoading, setIsLoading] = useState(false);
 
-  // 🚀 เตรียมไว้ใส่ฟังก์ชัน กดยอมรับ/ปฏิเสธ
   const handleAction = async (action: 'ACCEPT' | 'REJECT') => {
     setIsLoading(true);
-    console.log(`${action} request:`, requestId);
     // await respondToMatchRequest(requestId, action);
     setIsLoading(false);
   };
@@ -23,9 +22,16 @@ export function ReceivedCard({ requestId, senderName, senderImage }: ReceivedCar
   return (
     <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm flex justify-between items-center">
       <div className="flex items-center gap-4">
-        <div className="w-12 h-12 bg-gray-200 rounded-full overflow-hidden shrink-0">
-          <img src={senderImage || "/default-avatar.png"} alt="avatar" className="w-full h-full object-cover" />
+        
+        {/* 🟢 2. ปรับ Logic รูปภาพ ถ้าไม่มีรูปให้โชว์ UserCircle พร้อมสีพื้นหลัง Emerald-50 */}
+        <div className="w-12 h-12 rounded-full overflow-hidden shrink-0 border border-gray-100 flex items-center justify-center bg-emerald-50 text-emerald-200">
+          {senderImage ? (
+            <img src={senderImage} alt="avatar" className="w-full h-full object-cover" />
+          ) : (
+            <UserCircle size={32} strokeWidth={1.5} />
+          )}
         </div>
+
         <div>
           <h3 className="font-bold text-gray-800">{senderName}</h3>
           <p className="text-sm text-gray-500">อยากเป็นรูมเมทกับคุณ</p>
