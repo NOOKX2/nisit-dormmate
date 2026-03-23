@@ -1,12 +1,21 @@
 import Link from 'next/link';
-import { Building2, MessageCircle } from 'lucide-react';
+import { Bell, Building2, MessageCircle } from 'lucide-react';
 import { getAuthUser } from '@/lib/auth';
 import { logoutAction } from '@/app/action/logout';
 import UserDropdown from '../ui/UseDropDown';
 import NavLink from './navLink';
+import NavIcon from './navIcon';
+import { getNotificationMatchRequests } from '@/app/action/matching';
 
 export default async function Navbar() {
   const user = await getAuthUser();
+
+  // 🟢 2. แอบไปนับจำนวนการแจ้งเตือน
+  let notifCount = 0;
+  if (user) {
+    const { received } = await getNotificationMatchRequests(user.id);
+    notifCount = received.length; // ได้ตัวเลขมาแล้ว!
+  }
 
   return (
     <nav className="sticky top-0 z-50 w-full border-b border-gray-100 bg-white/80 backdrop-blur-md">
@@ -22,7 +31,7 @@ export default async function Navbar() {
           </span>
         </Link>
 
-        {/* 🟢 Desktop Menu - เปลี่ยนจาก Link เป็น NavLink */}
+        {/* Desktop Menu */}
         <div className="hidden md:flex items-center gap-8 text-sm font-medium">
           <NavLink href="/dorm">ค้นหาหอพัก</NavLink>
           <NavLink href="/quiz">จับคู่หารูมเมท</NavLink>
@@ -30,14 +39,17 @@ export default async function Navbar() {
         </div>
 
         {/* Auth Section */}
-        <div className="flex items-center gap-5">
+        <div className="flex items-center gap-3">
           {user ? (
             <>
-              <NavLink 
-                href="/chat" 
-              >
+              <NavIcon href='/chat'>
                 <MessageCircle size={22} />
-              </NavLink>
+              </NavIcon>
+
+              {/* 🟢 3. เปลี่ยนจาก hasNotification={true} เป็นส่งตัวเลข notificationCount={notifCount} เข้าไปแทน! */}
+              <NavIcon href='/notification' notificationCount={notifCount}>
+                <Bell size={22} />
+              </NavIcon>
 
               <UserDropdown
                 name={`${user.firstName} ${user.lastName}`}

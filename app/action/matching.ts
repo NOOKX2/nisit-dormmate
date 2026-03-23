@@ -72,14 +72,40 @@ export async function sendMatchRequest(senderId: string, targetUserId: string) {
 
 export async function respondToMatchRequest(requestId: string, action: 'ACCEPT' | 'REJECT') {
   try {
-    const newStatus = action === 'ACCEPT' ? 'ACCEPTED' : 'REJECTED';
-    
-    await prisma.matchRequest.update({
+    const currentUser = await getAuthUser();
+    if (!currentUser) {
+      return { success: false, error: "กรุณาเข้าสู่ระบบก่อน" };
+    }
+
+    const match = await prisma.matchRequest.findUnique({
       where: { id: requestId },
-      data: { status: newStatus }
+      select: { id: true, status: true, receiverId: true },
     });
 
-    revalidatePath('/match');
+    if (!match) {
+      return { success: false, error: "ไม่พบคำขอ" };
+    }
+
+    // Security: เฉพาะ "ฝั่งผู้รับ" เท่านั้นที่กดยอมรับ/ปฏิเสธได้
+    if (match.receiverId !== currentUser.id) {
+      return { success: false, error: "คุณไม่มีสิทธิ์ตอบรับคำขอนี้" };
+    }
+
+    if (match.status !== "PENDING") {
+      return { success: false, error: "คำขอนี้ถูกจัดการไปแล้ว" };
+    }
+
+    const newStatus = action === "ACCEPT" ? "ACCEPTED" : "REJECTED";
+
+    await prisma.matchRequest.update({
+      where: { id: requestId },
+      data: { status: newStatus },
+    });
+
+    revalidatePath("/my-roommate");
+    revalidatePath("/notification");
+    revalidatePath("/match");
+
     return { success: true };
   } catch (error) {
     return { success: false, error: "ไม่สามารถทำรายการได้" };
@@ -167,5 +193,29 @@ export async function cancelMatchRequest(requestId: string) {
   } catch (error) {
     console.error("Error canceling match:", error);
     return { success: false, error: "เกิดข้อผิดพลาด ไม่สามารถยกเลิกคำขอได้" };
+  }
+}
+
+// 📍 ในไฟล์ app/action/matching.ts
+export async function getNotificationMatchRequests(userId: string) {
+  try {
+    // 1. ดึงคำชวนที่มีคนส่งมาหาเรา
+    const received = await prisma.matchRequest.findMany({
+      where: { receiverId: userId, status: 'PENDING' },
+      include: { sender: true }, // ดึงข้อมูลคนส่งมาด้วย
+      orderBy: { createdAt: 'desc' }
+    });
+
+    // 2. ดึงคำชวนที่เราส่งไปหาคนอื่น
+    const sent = await prisma.matchRequest.findMany({
+      where: { senderId: userId, status: 'PENDING' },
+      include: { receiver: true }, // ดึงข้อมูลคนรับมาด้วย
+      orderBy: { createdAt: 'desc' }
+    });
+
+    return { received, sent };
+  } catch (error) {
+    console.error("Error fetching match requests:", error);
+    return { received: [], sent: [] };
   }
 }

@@ -1,8 +1,11 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { toast } from "sonner";
 // 🟢 1. Import UserCircle เพิ่มเข้ามา
 import { Loader2, UserCircle } from "lucide-react"; 
+import { respondToMatchRequest } from "@/app/action/matching";
 
 interface ReceivedCardProps {
   requestId: string;
@@ -12,11 +15,25 @@ interface ReceivedCardProps {
 
 export function ReceivedCard({ requestId, senderName, senderImage }: ReceivedCardProps) {
   const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
 
-  const handleAction = async (action: 'ACCEPT' | 'REJECT') => {
+  const handleAction = async (action: "ACCEPT" | "REJECT") => {
     setIsLoading(true);
-    // await respondToMatchRequest(requestId, action);
-    setIsLoading(false);
+    try {
+      const result = await respondToMatchRequest(requestId, action);
+      if (!result.success) {
+        toast.error(result.error || "ทำรายการไม่สำเร็จ");
+        return;
+      }
+
+      toast.success(action === "ACCEPT" ? "กดยอมรับเป็นเมทแล้ว" : "ปฏิเสธคำขอแล้ว");
+      router.refresh();
+    } catch (err) {
+      console.error(err);
+      toast.error("เกิดข้อผิดพลาดในการเชื่อมต่อ");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
