@@ -12,7 +12,7 @@ export default async function CommunityPage() {
 
     const fullName = `${user.firstName} ${user.lastName}`;
 
-    const initialPosts = await getPosts();
+    const initialPosts = await getPosts(user.id);
 
     return (
         <div className="min-h-screen bg-gray-50 p-4 md:p-8">

@@ -59,6 +59,8 @@ model User {
   receivedMatches MatchRequest[] @relation("ReceivedMatches")
 
   sessions        UserSession[]
+  postLikes       PostLike[]
+  postReplies     PostReply[]
 }
 
 // เซสชันจาก Google OAuth (และ flow อื่นที่ใช้ session_token cookie)
@@ -193,6 +195,40 @@ model Post {
   authorName  String   // ชื่อคนโพสต์ (เก็บไว้เลยจะได้ไม่ต้อง Join ให้เหนื่อยใน Hackathon)
   tag         String?  // เช่น "หาเมท", "รีวิวหอ", "เตือนภัย"
   createdAt   DateTime @default(now())
+
+  likes       PostLike[]
+  replies     PostReply[]
+}
+
+model PostLike {
+  id        String   @id @default(cuid())
+  postId    String
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([postId, userId])
+  @@index([postId])
+}
+
+model PostReply {
+  id         String   @id @default(cuid())
+  postId     String
+  post       Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  authorId   String
+  author     User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  authorName String
+  content    String   @db.Text
+  createdAt  DateTime @default(now())
+
+  // --- 🌟 ส่วนที่เพิ่มเข้ามาใหม่: สำหรับคอมเมนต์ซ้อนคอมเมนต์ ---
+  parentId   String?     // ถ้าเป็น null คือคอมเมนต์ปกติ, ถ้ามีค่า คือกำลังตอบกลับคอมเมนต์อื่น
+  parent     PostReply?  @relation("ThreadedReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies    PostReply[] @relation("ThreadedReplies")
+
+  @@index([postId, createdAt])
+  @@index([parentId])
 }
 
 model Message {

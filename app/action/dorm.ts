@@ -184,6 +184,78 @@ export async function getDorms() {
     }
 }
 
+export type DormSearchFilters = {
+  q?: string;
+  area?: string;
+  minPrice?: number;
+  maxPrice?: number;
+  verifiedOnly?: boolean;
+  sort?: "newest" | "price_asc" | "price_desc" | "rating_desc";
+};
+
+export async function getDormsByFilters(filters: DormSearchFilters) {
+    try {
+        const q = filters.q?.trim();
+        const area = filters.area?.trim();
+        const minPrice = typeof filters.minPrice === "number" && !Number.isNaN(filters.minPrice)
+          ? Math.max(0, filters.minPrice)
+          : undefined;
+        const maxPrice = typeof filters.maxPrice === "number" && !Number.isNaN(filters.maxPrice)
+          ? Math.max(0, filters.maxPrice)
+          : undefined;
+
+        const where: any = {};
+
+        if (q) {
+          where.OR = [
+            { name: { contains: q, mode: "insensitive" } },
+            { locationShort: { contains: q, mode: "insensitive" } },
+            { description: { contains: q, mode: "insensitive" } },
+            { address: { contains: q, mode: "insensitive" } },
+          ];
+        }
+
+        if (area) {
+          where.locationShort = { contains: area, mode: "insensitive" };
+        }
+
+        if (minPrice !== undefined || maxPrice !== undefined) {
+          where.priceRange = {
+            is: {
+              ...(minPrice !== undefined ? { maxPrice: { gte: minPrice } } : {}),
+              ...(maxPrice !== undefined ? { minPrice: { lte: maxPrice } } : {}),
+            },
+          };
+        }
+
+        if (filters.verifiedOnly) {
+          where.rating = { gte: 4.5 };
+        }
+
+        const orderBy =
+          filters.sort === "price_asc"
+            ? { priceRange: { minPrice: "asc" as const } }
+            : filters.sort === "price_desc"
+              ? { priceRange: { minPrice: "desc" as const } }
+              : filters.sort === "rating_desc"
+                ? { rating: "desc" as const }
+                : { createdAt: "desc" as const };
+
+        const dorms = await prisma.dorm.findMany({
+            where,
+            include: {
+                priceRange: true,
+                reviews: true,
+            },
+            orderBy,
+        });
+        return { success: true, data: dorms };
+    } catch (error) {
+        console.error("Fetch Dorms By Filters Error:", error);
+        return { success: false, error: "ไม่สามารถดึงข้อมูลหอพักได้" };
+    }
+}
+
 // เพิ่มต่อในไฟล์ app/action/dorm.ts
 // app/action/dorm.ts
 

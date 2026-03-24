@@ -1,11 +1,35 @@
-import { getDorms } from '@/app/action/dorm';
+import { getDormsByFilters } from '@/app/action/dorm';
 import { DormCard } from '@/app/(main)/dorm/_components/DormCard';
 import { DormSearch } from '@/app/(main)/dorm/_components/DormSearch';
 import { Building } from 'lucide-react';
 
+type DormListingPageProps = {
+  searchParams: Promise<{
+    q?: string;
+    area?: string;
+    min?: string;
+    max?: string;
+    verified?: string;
+    sort?: string;
+  }>;
+};
 
-export default async function DormListingPage() {
-  const result = await getDorms();
+export default async function DormListingPage({ searchParams }: DormListingPageProps) {
+  const params = await searchParams;
+  const result = await getDormsByFilters({
+    q: params.q,
+    area: params.area,
+    minPrice: params.min ? Number(params.min) : undefined,
+    maxPrice: params.max ? Number(params.max) : undefined,
+    verifiedOnly: params.verified === "1",
+    sort:
+      params.sort === "price_asc" ||
+      params.sort === "price_desc" ||
+      params.sort === "rating_desc" ||
+      params.sort === "newest"
+        ? params.sort
+        : "newest",
+  });
   const dorms = result.data || [];
 
   return (
@@ -22,7 +46,16 @@ export default async function DormListingPage() {
         </div>
 
         {/* Search & Filter */}
-        <DormSearch />
+        <DormSearch
+          defaultValues={{
+            q: params.q || "",
+            area: params.area || "",
+            min: params.min || "",
+            max: params.max || "",
+            verified: params.verified === "1",
+            sort: params.sort || "newest",
+          }}
+        />
 
         {/* Results Count */}
         <div className="mb-4 text-sm text-gray-500 font-medium">
