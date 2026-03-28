@@ -20,19 +20,30 @@ interface RoomOptionCardProps {
   isSelected: boolean;
   onSelect: () => void;
   hasCompletedQuiz: boolean;
+  disabled?: boolean;
+  occupiedSlots?: number;
 }
 
-
-export function RoomOptionCard({ room, isSelected, onSelect, hasCompletedQuiz }: RoomOptionCardProps) {
+export function RoomOptionCard({ room, isSelected, onSelect, hasCompletedQuiz, disabled, occupiedSlots = 0 }: RoomOptionCardProps) {
   return (
     <label 
-      className={`relative flex flex-col p-5 bg-white border-2 rounded-[2.5rem] cursor-pointer transition-all duration-300 min-h-55 ${
-        isSelected 
-          ? "border-emerald-500 ring-4 ring-emerald-50/50 bg-emerald-50/5 shadow-xl shadow-emerald-100" 
-          : "border-gray-100 hover:border-emerald-200 shadow-sm"
+      className={`relative flex flex-col p-5 bg-white border-2 rounded-[2.5rem] transition-all duration-300 min-h-55 ${
+        disabled
+          ? "cursor-not-allowed border-gray-100 bg-gray-50 opacity-60"
+          : isSelected
+          ? "cursor-pointer border-emerald-500 ring-4 ring-emerald-50/50 bg-emerald-50/5 shadow-xl shadow-emerald-100"
+          : "cursor-pointer border-gray-100 hover:border-emerald-200 shadow-sm"
       }`}
     >
-      <input type="radio" className="absolute opacity-0" onChange={onSelect} checked={isSelected} />
+      <input
+        type="radio"
+        className="absolute opacity-0"
+        disabled={disabled}
+        onChange={() => {
+          if (!disabled) onSelect();
+        }}
+        checked={isSelected}
+      />
       
       {/* Header: Circle & Floor */}
       <div className="flex justify-between items-start mb-4">
@@ -49,9 +60,17 @@ export function RoomOptionCard({ room, isSelected, onSelect, hasCompletedQuiz }:
       {/* Main Info */}
       <div className="mb-4">
         <p className="font-black text-2xl text-gray-900 leading-tight">{room.name}</p>
-        <div className="flex items-baseline gap-1 mt-1">
-          <p className="text-xl font-black text-emerald-600">฿{room.price.toLocaleString()}</p>
-          <p className="text-[10px] font-bold text-gray-400">/ เดือน</p>
+        <div className="mt-1 flex flex-wrap items-center gap-2">
+          <div className="flex items-baseline gap-1">
+            <p className="text-xl font-black text-emerald-600">฿{room.price.toLocaleString()}</p>
+            <p className="text-[10px] font-bold text-gray-400">/ เดือน</p>
+          </div>
+          <span className="text-[10px] font-bold text-gray-500">ความจุ {room.capacity} คน</span>
+          {disabled && (
+            <span className="rounded-full bg-red-100 px-2 py-0.5 text-[10px] font-black text-red-700">
+              เต็มแล้ว
+            </span>
+          )}
         </div>
       </div>
 
@@ -60,7 +79,8 @@ export function RoomOptionCard({ room, isSelected, onSelect, hasCompletedQuiz }:
         <RoommateStatus 
           roommate={room.existingRoommate} 
           hasCompletedQuiz={hasCompletedQuiz} 
-          
+          occupiedSlots={occupiedSlots}
+          capacity={room.capacity}
         />
       </div>
     </label>

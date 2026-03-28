@@ -14,14 +14,34 @@ export async function processBookingAction(data: {
 }) {
   try {
     return await prisma.$transaction(async (tx) => {
-      // 1. เช็คสถานะห้อง (ป้องกัน Race Condition)
       const room = await tx.room.findUnique({
         where: { id: data.roomId },
       });
 
-      if (!room || !room.isAvailable) {
-        // throw แบบนี้จะถูก catch ด้านล่าง
-        throw new Error("ห้องพักนี้ถูกจองไปแล้วโดยผู้ใช้อื่น");
+      if (!room) {
+        throw new Error("ไม่พบห้องพักนี้");
+      }
+
+      const duplicate = await tx.booking.findFirst({
+        where: {
+          roomId: data.roomId,
+          userId: data.userId,
+          status: "SUCCESS",
+        },
+      });
+      if (duplicate) {
+        throw new Error("คุณจองห้องนี้แล้ว");
+      }
+
+      const occupied = await tx.booking.count({
+        where: {
+          roomId: data.roomId,
+          status: "SUCCESS",
+        },
+      });
+
+      if (occupied >= room.capacity) {
+        throw new Error("ห้องนี้เต็มแล้ว (ครบจำนวนที่นอนตามความจุห้อง)");
       }
 
       // 2. คำนวณยอดเงิน
@@ -45,14 +65,24 @@ export async function processBookingAction(data: {
         },
       });
 
-      // 4. ล็อคห้องทันที
+      const occupiedAfter = occupied + 1;
       await tx.room.update({
         where: { id: data.roomId },
-        data: { isAvailable: false },
+        data: {
+          isAvailable: occupiedAfter < room.capacity,
+        },
+      });
+
+      const dorm = await tx.dorm.findUnique({
+        where: { id: data.dormId },
+        select: { slug: true },
       });
 
       revalidatePath("/admin");
-      revalidatePath(`/dorm/${data.dormId}`);
+      if (dorm?.slug) {
+        revalidatePath(`/dorm/${dorm.slug}`);
+        revalidatePath(`/dorm/${dorm.slug}/booking`);
+      }
 
       return { success: true, bookingId: booking.id };
     });

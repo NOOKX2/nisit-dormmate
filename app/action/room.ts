@@ -3,7 +3,7 @@
 import { prisma } from "@/lib/db";
 import { revalidatePath } from "next/cache";
 
-export async function getRoomDetails(roomId: string) {
+export async function getRoomDetails(roomId: string, currentUserId?: string) {
   try {
     const room = await prisma.room.findUnique({
       where: { id: roomId },
@@ -16,6 +16,27 @@ export async function getRoomDetails(roomId: string) {
       return null;
     }
 
+    const occupied = await prisma.booking.count({
+      where: { roomId: room.id, status: "SUCCESS" },
+    });
+
+    if (occupied >= room.capacity) {
+      return null;
+    }
+
+    if (currentUserId) {
+      const already = await prisma.booking.findFirst({
+        where: {
+          roomId: room.id,
+          userId: currentUserId,
+          status: "SUCCESS",
+        },
+      });
+      if (already) {
+        return null;
+      }
+    }
+
     return {
       dormId: room.dorm.id,
       roomId: room.id,
@@ -23,12 +44,14 @@ export async function getRoomDetails(roomId: string) {
       location: room.dorm.locationShort,
       roomType: room.name, // เช่น "ห้องแอร์ เตียงคู่"
       price: room.price,
+      capacity: room.capacity,
+      occupiedSlots: occupied,
       serviceFee: 300, // ค่าธรรมเนียมระบบ (Hardcode หรือดึงจาก DB ก็ได้)
       dorm: room.dorm,
     };
   } catch (error: any) {
     console.error("Fetch error:", error);
-    return { error: "ดึงข้อมูลการจองไม่สำเร็จ" };
+    return null;
   }
 }
 

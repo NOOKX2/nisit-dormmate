@@ -37,6 +37,13 @@ export function DormBookingContainer({ dorm, currentUser }: DormBookingContainer
             setError("กรุณากรอกข้อมูลให้ครบถ้วน");
             return;
         }
+        const selectedRoom = dorm?.rooms?.find((r: RoomWithBookingRoommate) => r.id === roomId);
+        const occupied = selectedRoom?.bookings?.length ?? 0;
+        if (selectedRoom && occupied >= selectedRoom.capacity) {
+            toast.error("ห้องนี้เต็มแล้ว กรุณาเลือกห้องอื่น");
+            setError("ห้องนี้เต็มแล้ว");
+            return;
+        }
         const params = new URLSearchParams(formData);
         router.push(`./booking/confirm?${params.toString()}`);
     };
@@ -87,6 +94,8 @@ export function DormBookingContainer({ dorm, currentUser }: DormBookingContainer
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         {dorm?.rooms?.map((room: RoomWithBookingRoommate) => {
                             const roommateUser = room.bookings?.[0]?.user;
+                            const occupied = room.bookings?.length ?? 0;
+                            const isFull = occupied >= room.capacity;
 
                             // 🟢 คำนวณ % MatchScore
                             const calculatedPercent = (currentUser && roommateUser)
@@ -111,6 +120,8 @@ export function DormBookingContainer({ dorm, currentUser }: DormBookingContainer
                                     isSelected={formData.roomId === room.id}
                                     onSelect={() => setFormData({ ...formData, roomId: room.id })}
                                     hasCompletedQuiz={currentUser?.hasCompletedQuiz ?? false}
+                                    disabled={isFull}
+                                    occupiedSlots={occupied}
                                 />
                             );
                         })}

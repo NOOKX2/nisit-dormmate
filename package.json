@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint",
     "db:push:local": "bunx prisma db push",
-    "db:push:prod": "dotenv -e .env.production -- bunx prisma db push"
+    "db:push:prod": "dotenv -e .env.production -- bunx prisma db push",
+    "db:sync:room-availability": "bun run scripts/sync-room-is-available.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1014.0",

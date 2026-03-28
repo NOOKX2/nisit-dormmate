@@ -278,6 +278,7 @@ export async function getDormBySlug(slug: string) {
               where: {
                 status: "SUCCESS",
               },
+              orderBy: { createdAt: "asc" },
               include: {
                 user: true
               }

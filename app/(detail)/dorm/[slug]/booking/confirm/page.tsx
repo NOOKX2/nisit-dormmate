@@ -16,14 +16,13 @@ export default async function BookingConfirmPage({ searchParams }: PageProps) {
     }
 
     // 2. ดึงข้อมูลห้องพักและ User พร้อมกัน (ประหยัดเวลาโหลด)
-    const [roomInfo, user] = await Promise.all([
-        getRoomDetails(params.roomId),
-        getAuthUser(),
-    ]);
+    const user = await getAuthUser();
+    if (!user) redirect("/login");
+
+    const roomInfo = await getRoomDetails(params.roomId, user.id);
 
     // 3. ตรวจสอบความถูกต้องของข้อมูล
     if (!roomInfo) redirect("/");
-    if (!user) redirect("/login"); // ถ้าไม่ได้ล็อกอิน เด้งไปหน้า login
 
     return (
         // 4. โยนข้อมูลที่ดึงเสร็จแล้วไปให้ Client วาดหน้าจอ
